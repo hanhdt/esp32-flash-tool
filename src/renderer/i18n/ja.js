@@ -1,0 +1,29 @@
+const JA = {
+  app_title: 'ASN Firmware Tool',
+  app_subtitle: '',
+  settings_header: '設定',
+  controller_header: 'ホーム',
+  pref_save_setting_successfully: '噴射時間を保存完了します。',
+  pref_basic_settings_title: '一般',
+  pref_reset_title: '設定をリセット',
+  pref_app_theme: 'アプリケーションのテーマ',
+  pref_reset_message_title: '初期設定に戻しますか？',
+  pref_reset_message_detail: '設定データがすべて削除されます。',
+  pref_light_theme: 'ホワイト',
+  pref_dark_theme: 'ブラック',
+  pref_support_title: 'Aromajoin サポート',
+  pref_address_content: '京都府相楽郡精華町光台3丁目5番地 NICTオープンラボ',
+  pref_phone_content: '080-9531-3091<br/>0774-98-6980',
+  pref_show_contact_btn: 'お問い合わせ',
+  pref_hide_contact_btn: 'Hide contact',
+  pref_notify_reset_message: '初期設定に戻しますか？',
+  pref_notify_reset_details: '設定データがすべて削除されます。',
+  contact_title: 'Aromajoin サポート',
+  contact_headquater_address: '本社: 〒619-0237　京都府相楽郡精華町光台3丁目5番地 NICTオープンラボ',
+  contact_lab_address: 'ラボ: 〒612-8374　京都市伏見区治部町105 ACT京都405号室',
+  contact_email: 'メイル: contact@aromajoin.com',
+  contact_tel: 'TEL: 080-9531-3091 / 0774-98-6980',
+  contact_app_version: 'バージョン'
+}
+
+export default JA
