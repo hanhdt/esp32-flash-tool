@@ -15,10 +15,10 @@
  */
 'use strict'
 
-import { app, BrowserWindow, globalShortcut, ipcMain, screen } from 'electron'
+import { app, BrowserWindow, globalShortcut, ipcMain } from 'electron'
 import path from 'path'
 import copyDefaultAssets from './copy_default_assets'
-
+import spiFlashImage from './flash_image'
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
@@ -33,15 +33,12 @@ const winURL = process.env.NODE_ENV === 'development'
   : `file://${__dirname}/index.html`
 
 function createWindow () {
-  const mainScreen = screen.getPrimaryDisplay()
-  const dimensions = mainScreen.size
   /**
    * Initial window options
    */
   mainWindow = new BrowserWindow({
-    width: Number(dimensions.width),
-    height: Number(dimensions.height),
-    minWidth: 780,
+    minHeight: 780,
+    minWidth: 800,
     show: false,
     icon: path.join(__static, '/images/512x512.png')
   })
@@ -95,4 +92,28 @@ app.on('activate', () => {
 ipcMain.on('reset-settings', (event) => {
   app.relaunch()
   app.quit()
+})
+
+ipcMain.on('spi-flash-image', (event, serialPort, initialOTADataBinPath,
+  bootloaderBinPath, appBinPath, partitionsBinPath) => {
+  let params = {
+    before: 'default_reset',
+    after: 'hard_reset',
+    chip: 'esp32',
+    port: serialPort,
+    baudRate: 115200,
+    flashMode: 'dio',
+    compress: '-z',
+    flashFreq: '80m',
+    flashSize: '8MB',
+    initialOTAIndex: '0xd000',
+    initialOTADataBinPath: initialOTADataBinPath,
+    bootloaderIndex: '0x1000',
+    bootloaderBinPath: bootloaderBinPath,
+    appIndex: '0x10000',
+    appBinPath: appBinPath,
+    partitionsTableIndex: '0x8000',
+    partitionsBinPath: partitionsBinPath
+  }
+  spiFlashImage(mainWindow, params)
 })

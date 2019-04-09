@@ -20,9 +20,14 @@ import store from './plugins/store'
 import './plugins/bootstrap'
 import i18n from './plugins/i18n'
 import './components/_globals'
+import * as filters from './filters'
 
 if (!process.env.IS_WEB) Vue.use(require('vue-electron'))
 Vue.config.productionTip = false
+
+for (const key in filters) {
+  Vue.filter(key, filters[key])
+}
 
 /* eslint-disable no-new */
 new Vue({
