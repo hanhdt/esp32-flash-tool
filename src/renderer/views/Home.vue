@@ -2,11 +2,12 @@
   <div class="home">
     <div class="container">
       <b-card
-        title="Aroma Shooter Firmware Tool"
         class="mb-2"
+        bg-variant="light"
+        header="Aroma Shooter Firmware Tool"
       >
         <b-card-body>
-          <b-form @submit.prevent="onFlashingSubmit">
+          <b-form>
             <b-form-group
               label="Serial port:"
               label-for="serialPortInput"
@@ -53,11 +54,16 @@
               />
             </b-form-group>
 
-            <b-button type="submit" variant="primary">Run flash</b-button>
-            <b-button v-b-toggle.collapse-details variant="info">Details</b-button>
-
-            <b-collapse id="collapse-details" class="mt-3">
-              <b-card>
+            <b-button
+              v-b-toggle.collapse-progress
+              @click.prevent="onFlashingSubmit"
+              variant="success"
+              :disabled="inProgress"
+            >
+              START
+            </b-button>
+            <b-collapse id="collapse-progress" class="mt-3">
+              <b-card  class="mt-3">
                 <p class="card-text" v-if="inProgress">
                   <b-spinner variant="success" label="Spinning" small></b-spinner>
                   Writing firmware into ASN board...
