@@ -14,44 +14,52 @@
             >
               <b-form-input
                 id="serialPortInput"
-                v-model="serialPort"
+                v-model="selectedSerialPort"
               />
             </b-form-group>
             <b-form-group
               label="OTA:"
-              label-for="initialOTADataBinPathInput"
             >
-              <b-form-input
+              <b-form-file
                 id="initialOTADataBinPathInput"
-                v-model="initialOTADataBinPath"
-              />
+                v-model="selectedInitialOTAFile"
+                :state="Boolean(selectedInitialOTAFile)"
+                placeholder="Choose a file..."
+                drop-placeholder="Drop file here..."
+                accept=".bin"
+              ></b-form-file>
             </b-form-group>
             <b-form-group
               label="Bootloader:"
-              label-for="bootloaderBinPathInput"
             >
-              <b-form-input
-                id="bootloaderBinPathInput"
-                v-model="bootloaderBinPath"
-              />
-            </b-form-group>
-            <b-form-group
-              label="App:"
-              label-for="appBinPathInput"
-            >
-              <b-form-input
-                id="appBinPathInput"
-                v-model="appBinPath"
-              />
+              <b-form-file
+                v-model="selectedBootLoaderFile"
+                :state="Boolean(selectedBootLoaderFile)"
+                placeholder="Choose a file..."
+                drop-placeholder="Drop file here..."
+                accept="application/octet-stream"
+              ></b-form-file>
             </b-form-group>
             <b-form-group
               label="Partitions table:"
-              label-for="partitionsBinPathInput"
             >
-              <b-form-input
-                id="partitionsBinPathInput"
-                v-model="partitionsBinPath"
-              />
+              <b-form-file
+                v-model="selectedPartitionsTableFile"
+                :state="Boolean(selectedPartitionsTableFile)"
+                placeholder="Choose a file..."
+                drop-placeholder="Drop file here..."
+                accept="application/octet-stream"
+              ></b-form-file>
+            </b-form-group>
+            <b-form-group
+              label="App:"
+            >
+              <b-form-file
+                v-model="selectedAppFile"
+                placeholder="Choose a file..."
+                drop-placeholder="Drop file here..."
+                accept="application/octet-stream"
+              ></b-form-file>
             </b-form-group>
 
             <b-button
@@ -88,36 +96,92 @@
 <script>
 // @ is an alias to /src
 import { ipcRenderer } from 'electron'
+import { mapActions, mapGetters } from 'vuex'
 
 export default {
   name: 'home',
   data () {
     return {
-      serialPort: '/dev/ttyUSB0',
-      initialOTADataBinPath: '/home/hanh/esp/workspace/espidf-asn-controller/build/ota_data_initial.bin',
-      bootloaderBinPath: '/home/hanh/esp/workspace/espidf-asn-controller/build/bootloader/bootloader.bin',
-      appBinPath: '/home/hanh/esp/workspace/espidf-asn-controller/build/asn2.bin',
-      partitionsBinPath: '/home/hanh/esp/workspace/espidf-asn-controller/build/partitions.ota.bin',
-      progressMessages: [],
       inProgress: false
     }
   },
-  created () {
+  mounted () {
     this.listenFlashingUpdate()
     this.listenFlashingComplete()
   },
+  computed: {
+    ...mapGetters([
+      'serialPort',
+      'initialOTADataFile',
+      'bootLoaderFile',
+      'appFile',
+      'partitionsTableFile',
+      'progressMessages'
+    ]),
+    selectedSerialPort: {
+      get () {
+        return this.serialPort
+      },
+      set (value) {
+        this.updateSerialPort(value)
+      }
+    },
+    selectedInitialOTAFile: {
+      get () {
+        return this.initialOTADataFile
+      },
+      set (file) {
+        this.updateOTADataFile(file.path)
+      }
+    },
+    selectedBootLoaderFile: {
+      get () {
+        return this.bootLoaderFile
+      },
+      set (file) {
+        this.updateBootLoaderFile(file.path)
+      }
+    },
+    selectedAppFile: {
+      get () {
+        return this.appFile
+      },
+      set (file) {
+        this.updateAppFile(file.path)
+      }
+    },
+    selectedPartitionsTableFile: {
+      get () {
+        return this.partitionsTableFile
+      },
+      set (file) {
+        this.updatePartitionsTableFile(file.path)
+      }
+    }
+  },
   methods: {
+    ...mapActions([
+      'updateSerialPort',
+      'updateOTADataFile',
+      'updateBootLoaderFile',
+      'updateAppFile',
+      'updatePartitionsTableFile',
+      'updateProgress',
+      'clearProgressMessages'
+    ]),
     onFlashingSubmit () {
       this.inProgress = true
-      ipcRenderer.send('spi-flash-image', this.serialPort, this.initialOTADataBinPath,
-        this.bootloaderBinPath, this.appBinPath, this.partitionsBinPath)
+      ipcRenderer.send('spi-flash-image', this.serialPort, this.initialOTADataFile,
+        this.bootLoaderFile, this.appFile, this.partitionsTableFile)
     },
     listenFlashingUpdate () {
+      this.clearProgressMessages()
+
       ipcRenderer.on('flashing-progress-updated', (event, message) => {
         if (message) {
           // console.log('Flashing progress:', message)
           // Add progress message into the list
-          this.progressMessages.push({ id: Date.now(), data: message })
+          this.updateProgress(message)
         }
       })
     },
@@ -125,10 +189,10 @@ export default {
       ipcRenderer.on('flashing-progress-completed', (event, code) => {
         if (code === 0) {
           console.log('Flashing success.')
-          this.progressMessages.push({ id: Date.now(), data: 'Flashing done.' })
+          this.updateProgress('Flashing done.')
         } else {
           console.log('Flashing failed.')
-          this.progressMessages.push({ id: Date.now(), data: 'Flashing failed.' })
+          this.updateProgress('Flashing failed.')
         }
         this.inProgress = false
       })
