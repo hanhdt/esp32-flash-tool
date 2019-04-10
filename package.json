@@ -1,10 +1,9 @@
 {
-  "name": "aroma-controller",
-  "productName": "AromaController",
-  "homepage": "https://aromajoin.com/software/apps/aroma-controller",
-  "version": "2.0.0",
+  "name": "asn-firmware-tool",
+  "productName": "ASNFirmwareTool",
+  "version": "1.0.0",
   "author": "Hanh D. Tran <tranduchanh@aromajoin.com>",
-  "description": "A desktop application allows to control Aroma Shooter (USB)",
+  "description": "A desktop application allows to flashing Aroma Shooter boards with ESP32 inside",
   "copyright": "Copyright © 2018 Aromajoin Corporation",
   "license": "Apache-2.0",
   "main": "./dist/electron/main.js",
@@ -24,8 +23,8 @@
     "postinstall": "npm run lint:fix"
   },
   "build": {
-    "productName": "aroma-controller",
-    "appId": "com.aromajoin.aromacontroller",
+    "productName": "asn-firmware-tool",
+    "appId": "com.aromajoin.asntool",
     "asar": true,
     "directories": {
       "output": "build"
@@ -68,6 +67,7 @@
     "lodash": "^4.17.11",
     "normalize.css": "^8.0.1",
     "python-shell": "^1.0.7",
+    "serialport": "^7.1.4",
     "vue": "^2.6.10",
     "vue-electron": "^1.0.6",
     "vue-i18n": "^8.10.0",

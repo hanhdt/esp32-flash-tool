@@ -19,6 +19,8 @@ import { app, BrowserWindow, globalShortcut, ipcMain } from 'electron'
 import path from 'path'
 import copyDefaultAssets from './copy_default_assets'
 import spiFlashImage from './flash_image'
+import scanSerialPorts from './scan_serial_ports'
+
 /**
  * Set `__static` path to static files in production
  * https://simulatedgreg.gitbooks.io/electron-vue/content/en/using-static-assets.html
@@ -96,7 +98,7 @@ ipcMain.on('reset-settings', (event) => {
 
 ipcMain.on('spi-flash-image', (event, serialPort, initialOTADataBinPath,
   bootloaderBinPath, appBinPath, partitionsBinPath) => {
-  let params = {
+  const params = {
     before: 'default_reset',
     after: 'hard_reset',
     chip: 'esp32',
@@ -116,4 +118,8 @@ ipcMain.on('spi-flash-image', (event, serialPort, initialOTADataBinPath,
     partitionsBinPath: partitionsBinPath
   }
   spiFlashImage(mainWindow, params)
+})
+
+ipcMain.on('scan-devices', (event) => {
+  scanSerialPorts(mainWindow)
 })

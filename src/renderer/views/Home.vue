@@ -12,13 +12,16 @@
               label="Serial port:"
               label-for="serialPortInput"
             >
-              <b-form-input
-                id="serialPortInput"
-                v-model="selectedSerialPort"
-              />
+              <div class="devices__select">
+                <b-form-select
+                  id="serialPortInput"
+                  v-model="selectedSerialPort"
+                  :options="deviceOptions"
+                />
+              </div>
             </b-form-group>
             <b-form-group
-              label="OTA:"
+              label="OTA file:"
             >
               <b-form-file
                 id="initialOTADataBinPathInput"
@@ -30,7 +33,7 @@
               ></b-form-file>
             </b-form-group>
             <b-form-group
-              label="Bootloader:"
+              label="Bootloader file:"
             >
               <b-form-file
                 v-model="selectedBootLoaderFile"
@@ -41,7 +44,7 @@
               ></b-form-file>
             </b-form-group>
             <b-form-group
-              label="Partitions table:"
+              label="Partitions file:"
             >
               <b-form-file
                 v-model="selectedPartitionsTableFile"
@@ -52,7 +55,7 @@
               ></b-form-file>
             </b-form-group>
             <b-form-group
-              label="App:"
+              label="App file:"
             >
               <b-form-file
                 v-model="selectedAppFile"
@@ -69,7 +72,7 @@
               variant="success"
               :disabled="inProgress"
             >
-              Flash!
+              FLASH
             </b-button>
             <b-collapse id="collapse-progress" class="mt-3">
               <b-card  class="mt-3">
@@ -117,8 +120,17 @@ export default {
       'bootLoaderFile',
       'appFile',
       'partitionsTableFile',
-      'progressMessages'
+      'progressMessages',
+      'connectedDevices'
     ]),
+    deviceOptions () {
+      let options = [{ value: null, text: '--- Select AS board ---' }]
+      options.push({ value: 'all', text: 'All boards' })
+      this.connectedDevices.forEach((device) => {
+        options.push({ value: device.comName, text: device.comName + ' - ' + device.manufacturer })
+      })
+      return options
+    },
     selectedSerialPort: {
       get () {
         return this.serialPort
@@ -215,6 +227,11 @@ export default {
     @media (max-width: 991px) {
       align-items: flex-start;
       padding-top: 80px;
+    }
+    .devices__select {
+      min-width: 250px;
+      display: flex;
+      flex-flow: column;
     }
   }
 </style>

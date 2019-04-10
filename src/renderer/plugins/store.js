@@ -6,7 +6,7 @@ export default new Vuex.Store({
   state: {
     appTheme: 'dark-theme',
     locale: 'ja',
-    serialPort: '',
+    serialPort: null,
     initialOTADataFile: null,
     bootLoaderFile: null,
     appFile: null,

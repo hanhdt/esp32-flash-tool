@@ -9,6 +9,7 @@
 </template>
 
 <script>
+import { ipcRenderer } from 'electron'
 import { mapActions, mapGetters } from 'vuex'
 import AppLayout from './components/AppLayout.vue'
 
@@ -19,6 +20,10 @@ export default {
   },
   created () {
     this.restoreAppPerferences()
+    this.listenScanningPorts()
+  },
+  mounted () {
+    this.sendScanningPortsEvent()
   },
   computed: {
     ...mapGetters({
@@ -27,7 +32,8 @@ export default {
   },
   methods: {
     ...mapActions([
-      'updateAppTheme'
+      'updateAppTheme',
+      'addConnectedDevice'
     ]),
     restoreAppPerferences () {
       if (localStorage.getItem('appTheme')) {
@@ -35,6 +41,17 @@ export default {
       } else {
         localStorage.setItem('appTheme', this.theme)
       }
+    },
+    sendScanningPortsEvent () {
+      ipcRenderer.send('scan-devices')
+    },
+    listenScanningPorts () {
+      ipcRenderer.on('ports-scanned', (event, ports) => {
+        // console.log('Connected devices:', ports)
+        ports.forEach((device) => {
+          this.addConnectedDevice(device)
+        })
+      })
     }
   }
 }

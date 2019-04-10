@@ -9,15 +9,16 @@ let options = {
 }
 
 export default function spiFlashImage (mainWindow, params) {
-  // PythonShell.run('esptool.py', options, function (err, results) {
-  //   if (err) throw err
-  //   // results is an array consisting of messages collected during execution
-  //   console.log('results: %j', results)
-  // })
   options.args = [
-    '--chip', params.chip, '--port', params.port, '--baud', params.baudRate,
-    '--before', params.before, '--after', params.after, 'write_flash', params.compress,
-    '--flash_mode', params.flashMode, '--flash_freq', params.flashFreq, '--flash_size', params.flashSize,
+    '--chip', params.chip,
+    '--port', params.port,
+    '--baud', params.baudRate,
+    '--before', params.before,
+    '--after', params.after,
+    'write_flash', params.compress,
+    '--flash_mode', params.flashMode,
+    '--flash_freq', params.flashFreq,
+    '--flash_size', params.flashSize,
     params.initialOTAIndex, params.initialOTADataBinPath,
     params.bootloaderIndex, params.bootloaderBinPath,
     params.appIndex, params.appBinPath,
