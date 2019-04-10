@@ -56,6 +56,7 @@
             >
               <b-form-file
                 v-model="selectedAppFile"
+                :state="Boolean(selectedAppFile)"
                 placeholder="Choose a file..."
                 drop-placeholder="Drop file here..."
                 accept="application/octet-stream"
@@ -68,7 +69,7 @@
               variant="success"
               :disabled="inProgress"
             >
-              START
+              Flash!
             </b-button>
             <b-collapse id="collapse-progress" class="mt-3">
               <b-card  class="mt-3">
@@ -188,10 +189,8 @@ export default {
     listenFlashingComplete () {
       ipcRenderer.on('flashing-progress-completed', (event, code) => {
         if (code === 0) {
-          console.log('Flashing success.')
           this.updateProgress('Flashing done.')
         } else {
-          console.log('Flashing failed.')
           this.updateProgress('Flashing failed.')
         }
         this.inProgress = false

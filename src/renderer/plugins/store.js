@@ -11,7 +11,9 @@ export default new Vuex.Store({
     bootLoaderFile: null,
     appFile: null,
     partitionsTableFile: null,
-    progressMessages: []
+    progressMessages: [],
+    connectedDevices: [],
+    currentDevice: null
   },
   getters: {
     appTheme (state) {
@@ -37,6 +39,12 @@ export default new Vuex.Store({
     },
     progressMessages (state) {
       return state.progressMessages
+    },
+    connectedDevices (state) {
+      return state.connectedDevices
+    },
+    currentDevice (state) {
+      return state.currentDevice
     }
   },
   mutations: {
@@ -69,6 +77,21 @@ export default new Vuex.Store({
       if (state.progressMessages.length > 0) {
         state.progressMessages = []
       }
+    },
+    addConnectedDevice (state, device) {
+      if (state.connectedDevices.indexOf(device) === -1) {
+        state.connectedDevices.push(device)
+      }
+    },
+    removeConnectedDevice (state, device) {
+      state.connectedDevices = state.connectedDevices
+        .filter((connectedDevice) => connectedDevice !== device)
+    },
+    resetConnectedDevices (state) {
+      state.connectedDevices = []
+    },
+    currentDevice (state, device) {
+      state.currentDevice = device
     }
   },
   actions: {
@@ -98,6 +121,18 @@ export default new Vuex.Store({
     },
     clearProgressMessages ({ commit }) {
       commit('clearProgressMessages')
+    },
+    addConnectedDevice ({ commit }, device) {
+      commit('addConnectedDevice', device)
+    },
+    removeConnectedDevice ({ commit }, device) {
+      commit('removeConnectedDevice', device)
+    },
+    resetConnectedDevices ({ commit }) {
+      commit('resetConnectedDevices')
+    },
+    updateCurrentDevice ({ commit }, device) {
+      commit('currentDevice', device)
     }
   }
 })
