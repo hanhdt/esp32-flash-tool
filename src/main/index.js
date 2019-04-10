@@ -20,6 +20,7 @@ import path from 'path'
 import copyDefaultAssets from './copy_default_assets'
 import spiFlashImage from './flash_image'
 import scanSerialPorts from './scan_serial_ports'
+import unzipFirmwareImage from './unzip_firmware_image'
 
 /**
  * Set `__static` path to static files in production
@@ -39,8 +40,8 @@ function createWindow () {
    * Initial window options
    */
   mainWindow = new BrowserWindow({
-    minHeight: 780,
-    minWidth: 800,
+    minHeight: 550,
+    minWidth: 920,
     show: false,
     icon: path.join(__static, '/images/512x512.png')
   })
@@ -122,4 +123,12 @@ ipcMain.on('spi-flash-image', (event, serialPort, initialOTADataBinPath,
 
 ipcMain.on('scan-devices', (event) => {
   scanSerialPorts(mainWindow)
+})
+
+ipcMain.on('unzip-firmware-file', (event, zipFilePath) => {
+  const params = {
+    filePath: zipFilePath,
+    options: { lazyEntries: false }
+  }
+  unzipFirmwareImage(mainWindow, params)
 })

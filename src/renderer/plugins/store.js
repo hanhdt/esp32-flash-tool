@@ -1,3 +1,4 @@
+import { ipcRenderer } from 'electron'
 import Vue from 'vue'
 import Vuex from 'vuex'
 Vue.use(Vuex)
@@ -13,7 +14,8 @@ export default new Vuex.Store({
     partitionsTableFile: null,
     progressMessages: [],
     connectedDevices: [],
-    currentDevice: null
+    currentDevice: null,
+    singleFirmwareFile: null
   },
   getters: {
     appTheme (state) {
@@ -45,6 +47,9 @@ export default new Vuex.Store({
     },
     currentDevice (state) {
       return state.currentDevice
+    },
+    singleFirmwareFile (state) {
+      return state.singleFirmwareFile
     }
   },
   mutations: {
@@ -92,6 +97,10 @@ export default new Vuex.Store({
     },
     currentDevice (state, device) {
       state.currentDevice = device
+    },
+    singleFirmwareFile (state, filePath) {
+      state.singleFirmwareFile = filePath
+      ipcRenderer.send('unzip-firmware-file', state.singleFirmwareFile)
     }
   },
   actions: {
@@ -133,6 +142,9 @@ export default new Vuex.Store({
     },
     updateCurrentDevice ({ commit }, device) {
       commit('currentDevice', device)
+    },
+    updateSingleFirmwareFile ({ commit }, filePath) {
+      commit('singleFirmwareFile', filePath)
     }
   }
 })

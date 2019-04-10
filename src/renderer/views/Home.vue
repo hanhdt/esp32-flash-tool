@@ -4,7 +4,7 @@
       <b-card
         class="mb-2"
         bg-variant="light"
-        header="Aroma Shooter Firmware Tool"
+        header="Aroma Shooter Firmware Flashing Tool"
       >
         <b-card-body>
           <b-form>
@@ -21,48 +21,14 @@
               </div>
             </b-form-group>
             <b-form-group
-              label="OTA file:"
+              label="Firmware image:"
             >
               <b-form-file
-                id="initialOTADataBinPathInput"
-                v-model="selectedInitialOTAFile"
-                :state="Boolean(selectedInitialOTAFile)"
+                v-model="selectedSingleFirmwareFile"
+                :state="Boolean(selectedSingleFirmwareFile)"
                 placeholder="Choose a file..."
                 drop-placeholder="Drop file here..."
-                accept=".bin"
-              ></b-form-file>
-            </b-form-group>
-            <b-form-group
-              label="Bootloader file:"
-            >
-              <b-form-file
-                v-model="selectedBootLoaderFile"
-                :state="Boolean(selectedBootLoaderFile)"
-                placeholder="Choose a file..."
-                drop-placeholder="Drop file here..."
-                accept="application/octet-stream"
-              ></b-form-file>
-            </b-form-group>
-            <b-form-group
-              label="Partitions file:"
-            >
-              <b-form-file
-                v-model="selectedPartitionsTableFile"
-                :state="Boolean(selectedPartitionsTableFile)"
-                placeholder="Choose a file..."
-                drop-placeholder="Drop file here..."
-                accept="application/octet-stream"
-              ></b-form-file>
-            </b-form-group>
-            <b-form-group
-              label="App file:"
-            >
-              <b-form-file
-                v-model="selectedAppFile"
-                :state="Boolean(selectedAppFile)"
-                placeholder="Choose a file..."
-                drop-placeholder="Drop file here..."
-                accept="application/octet-stream"
+                accept="application/zip"
               ></b-form-file>
             </b-form-group>
 
@@ -70,7 +36,7 @@
               v-b-toggle.collapse-progress
               @click.prevent="onFlashingSubmit"
               variant="success"
-              :disabled="inProgress"
+              :disabled="inProgress || !isReadyFlashing"
             >
               FLASH
             </b-button>
@@ -112,6 +78,7 @@ export default {
   mounted () {
     this.listenFlashingUpdate()
     this.listenFlashingComplete()
+    this.listenBinFileUnzip()
   },
   computed: {
     ...mapGetters([
@@ -121,15 +88,22 @@ export default {
       'appFile',
       'partitionsTableFile',
       'progressMessages',
-      'connectedDevices'
+      'connectedDevices',
+      'singleFirmwareFile'
     ]),
     deviceOptions () {
       let options = [{ value: null, text: '--- Select AS board ---' }]
-      options.push({ value: 'all', text: 'All boards' })
+      options.push({ value: 'all', text: 'All connected boards' })
       this.connectedDevices.forEach((device) => {
         options.push({ value: device.comName, text: device.comName + ' - ' + device.manufacturer })
       })
       return options
+    },
+    isReadyFlashing () {
+      return !this.isEmptyString(this.bootLoaderFile) &&
+        !this.isEmptyString(this.initialOTADataFile) &&
+        !this.isEmptyString(this.partitionsTableFile) &&
+        !this.isEmptyString(this.appFile)
     },
     selectedSerialPort: {
       get () {
@@ -139,36 +113,12 @@ export default {
         this.updateSerialPort(value)
       }
     },
-    selectedInitialOTAFile: {
+    selectedSingleFirmwareFile: {
       get () {
-        return this.initialOTADataFile
+        return this.singleFirmwareFile
       },
       set (file) {
-        this.updateOTADataFile(file.path)
-      }
-    },
-    selectedBootLoaderFile: {
-      get () {
-        return this.bootLoaderFile
-      },
-      set (file) {
-        this.updateBootLoaderFile(file.path)
-      }
-    },
-    selectedAppFile: {
-      get () {
-        return this.appFile
-      },
-      set (file) {
-        this.updateAppFile(file.path)
-      }
-    },
-    selectedPartitionsTableFile: {
-      get () {
-        return this.partitionsTableFile
-      },
-      set (file) {
-        this.updatePartitionsTableFile(file.path)
+        this.updateSingleFirmwareFile(file.path)
       }
     }
   },
@@ -180,7 +130,8 @@ export default {
       'updateAppFile',
       'updatePartitionsTableFile',
       'updateProgress',
-      'clearProgressMessages'
+      'clearProgressMessages',
+      'updateSingleFirmwareFile'
     ]),
     onFlashingSubmit () {
       this.inProgress = true
@@ -207,6 +158,31 @@ export default {
         }
         this.inProgress = false
       })
+    },
+    listenBinFileUnzip () {
+      ipcRenderer.on('bin-file-unzipped', (event, order, dest) => {
+        switch (order) {
+          case 0:
+            this.updateBootLoaderFile(dest)
+            break
+          case 1:
+            this.updateOTADataFile(dest)
+            break
+          case 2:
+            this.updatePartitionsTableFile(dest)
+            break
+          case 3:
+            this.updateAppFile(dest)
+            break
+          default:
+            break
+        }
+      })
+    },
+    isEmptyString (value) {
+      return (typeof value === 'string' && !value.trim()) ||
+        typeof value === 'undefined' ||
+        value === null
     }
   }
 }
