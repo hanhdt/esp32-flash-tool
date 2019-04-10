@@ -1,7 +1,7 @@
 <template>
   <div id="nav" class="aroma__nav">
     <router-link
-      to="/about"
+      to="/setting"
       :class="$route.name === 'setting' ? 'active' : ''">
       <img :src="settingImageUrl" alt="">
     </router-link>
