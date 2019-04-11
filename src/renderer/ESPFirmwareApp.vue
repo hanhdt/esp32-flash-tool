@@ -169,14 +169,4 @@ body {
     max-width: 400px!important;
   }
 }
-.btn-primary {
-  background-color: #89C400!important;
-  border-color: #89C400!important;
-  &:focus,
-  &:not(:disabled):not(.disabled):active {
-    background-color: #89C400!important;
-    border-color: #89C400!important;
-    box-shadow: 0 0 0 0.2rem rgba(137, 196, 0, 0.5)!important;
-  }
-}
 </style>

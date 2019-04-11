@@ -40,9 +40,12 @@ function createWindow () {
    * Initial window options
    */
   mainWindow = new BrowserWindow({
-    minHeight: 550,
-    minWidth: 920,
+    height: 550,
+    width: 920,
     show: false,
+    resizable: false,
+    center: true,
+    darkTheme: true,
     icon: path.join(__static, '/images/512x512.png')
   })
 

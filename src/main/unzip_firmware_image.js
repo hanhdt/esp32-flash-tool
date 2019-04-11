@@ -12,7 +12,7 @@ function uploadBinFiles (mainWindow, fileName, readStream) {
   const file = fs.createWriteStream(dest)
   readStream.pipe(file)
   readStream.on('end', () => {
-    console.log('Unzipped: ', dest)
+    // console.log('Unzipped: ', dest)
     if (fileName === 'bootloader.bin') {
       mainWindow.webContents.send('bin-file-unzipped', 0, dest)
     } else if (fileName === 'ota_data_initial.bin') {

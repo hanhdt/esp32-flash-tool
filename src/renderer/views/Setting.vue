@@ -8,7 +8,6 @@
         <div class="about__content">
           <ul class="about__list list-unstyled">
             <li>{{ $t("contact_headquater_address") }} </li>
-            <li>{{ $t("contact_lab_address") }}</li>
             <li><a href="mailto:contact@aromajoin.com">{{ $t("contact_email") }}</a></li>
             <li>{{ $t("contact_tel") }}</li>
             <li>{{ $t("contact_app_version") }}: {{ appVersion }}</li>

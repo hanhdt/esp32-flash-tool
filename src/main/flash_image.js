@@ -27,15 +27,13 @@ export default function spiFlashImage (mainWindow, params) {
   let pyShell = new PythonShell('esptool.py', options)
 
   pyShell.on('message', (message) => {
-    console.log('message: %j', message)
+    // console.log('message: %j', message)
     mainWindow.webContents.send('flashing-progress-updated', message)
   })
 
   pyShell.end((err, code, signal) => {
     if (err) throw err
 
-    console.log('The exit code was: ' + code)
-    console.log('The exit signal was: ' + signal)
-    mainWindow.webContents.send('flashing-progress-completed', code)
+    mainWindow.webContents.send('flashing-progress-completed', code, signal)
   })
 }
