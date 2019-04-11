@@ -4,7 +4,7 @@ let options = {
   mode: 'text',
   pythonPath: 'python',
   pythonOptions: ['-u'], // get print results in real-time
-  scriptPath: 'esptool/',
+  scriptPath: 'node_modules/esptool.git/',
   args: []
 }
 
