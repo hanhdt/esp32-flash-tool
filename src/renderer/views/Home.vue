@@ -26,7 +26,7 @@
               
             </b-form-group>
 
-            <!-- Select ESP board -->
+            <!-- Select ASN board -->
             <b-form-group
               label="ASN board"
               label-for="serialPortInput"
@@ -56,10 +56,23 @@
             </div>
 
             <!-- Progress details -->
-            <b-collapse id="collapse-progress" class="mt-3">
-              <b-card class="mt-3" bg-variant="dark">
-                <p class="card-text" v-if="inProgress">
-                  <b-spinner variant="success" label="Spinning" small></b-spinner>
+            <b-collapse
+              id="collapse-progress"
+              class="mt-3"
+            >
+              <b-card
+                class="mt-3"
+                bg-variant="dark"
+              >
+                <p 
+                  class="card-text"
+                  v-if="inProgress"
+                >
+                  <b-spinner
+                    variant="success"
+                    label="Spinning"
+                    small>
+                  </b-spinner>
                   Writing firmware into the board...
                 </p>
                 <p class="card-text" v-else> 
@@ -69,7 +82,9 @@
                   </i>
                 </p>
                 <b-card-text>
-                  <em v-for="message in this.progressMessages" :key="message.id">
+                  <em 
+                    v-for="message in this.progressMessages"
+                    :key="message.id">
                     {{ message.data | addStringNewLine }}<br/>
                   </em>
                 </b-card-text>

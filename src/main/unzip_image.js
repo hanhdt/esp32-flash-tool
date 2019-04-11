@@ -8,11 +8,13 @@ function uploadBinFiles (mainWindow, fileName, readStream) {
   if (!fs.existsSync(uploadDir)) { // create folder if not existed!
     fs.mkdirSync(uploadDir)
   }
+
   const dest = path.join(uploadDir, fileName)
   const file = fs.createWriteStream(dest)
   readStream.pipe(file)
   readStream.on('end', () => {
     // console.log('Unzipped: ', dest)
+
     if (fileName === 'bootloader.bin') {
       mainWindow.webContents.send('bin-file-unzipped', 0, dest)
     } else if (fileName === 'ota_data_initial.bin') {
@@ -25,7 +27,7 @@ function uploadBinFiles (mainWindow, fileName, readStream) {
   })
 }
 
-export default function unzipFirmwareImage (mainWindow, params) {
+export default function unzipImage (mainWindow, params) {
   yauzl.open(params.filePath, params.options, (err, zipFile) => {
     if (err) throw err
 

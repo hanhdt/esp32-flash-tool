@@ -20,7 +20,7 @@ import path from 'path'
 import copyDefaultAssets from './copy_default_assets'
 import spiFlashImage from './flash_image'
 import scanSerialPorts from './scan_serial_ports'
-import unzipFirmwareImage from './unzip_firmware_image'
+import unzipImage from './unzip_image'
 
 /**
  * Set `__static` path to static files in production
@@ -137,5 +137,5 @@ ipcMain.on('unzip-firmware-file', (event, zipFilePath) => {
     filePath: zipFilePath,
     options: { lazyEntries: false }
   }
-  unzipFirmwareImage(mainWindow, params)
+  unzipImage(mainWindow, params)
 })

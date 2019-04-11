@@ -4,7 +4,7 @@
   "version": "1.0.0",
   "author": "Hanh D. Tran <tranduchanh@aromajoin.com>",
   "description": "A desktop application allows to flashing Aroma Shooter boards with ESP32 inside",
-  "copyright": "Copyright © 2018 Aromajoin Corporation",
+  "copyright": "Copyright © 2019 Aromajoin Corporation",
   "homepage": "https://aromajoin.com",
   "license": "Apache-2.0",
   "main": "./dist/electron/main.js",
