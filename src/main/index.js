@@ -95,15 +95,19 @@ app.on('activate', () => {
   }
 })
 
+/** Main Process event triggers */
+// Fired when reload app event is received
 ipcMain.on('reload-app', (event) => {
-  mainWindow.reload()
+  scanSerialPorts(mainWindow)
 })
 
+// Fired when reset settings event is received
 ipcMain.on('reset-settings', (event) => {
   app.relaunch()
   app.quit()
 })
 
+// Fired when button flash! is clicked
 ipcMain.on('spi-flash-image', (event, serialPort, initialOTADataBinPath,
   bootloaderBinPath, appBinPath, partitionsBinPath) => {
   const params = {
@@ -128,10 +132,12 @@ ipcMain.on('spi-flash-image', (event, serialPort, initialOTADataBinPath,
   spiFlashImage(mainWindow, params)
 })
 
+// Fired for scanning serial ports that devices are plugged in
 ipcMain.on('scan-devices', (event) => {
   scanSerialPorts(mainWindow)
 })
 
+// Fired for unzipping firmware image event
 ipcMain.on('unzip-firmware-file', (event, zipFilePath) => {
   const params = {
     filePath: zipFilePath,
