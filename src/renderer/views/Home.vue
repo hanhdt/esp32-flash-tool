@@ -60,10 +60,13 @@
               <b-card class="mt-3" bg-variant="dark">
                 <p class="card-text" v-if="inProgress">
                   <b-spinner variant="success" label="Spinning" small></b-spinner>
-                  Writing firmware into ASN board...
+                  Writing firmware into the board...
                 </p>
-                <p class="card-text" v-else>
-                  Flashing is inactive.
+                <p class="card-text" v-else> 
+                  <strong>Flashing is finished!</strong>
+                  <i class="material-icons">
+                    check_circle
+                  </i>
                 </p>
                 <b-card-text>
                   <em v-for="message in this.progressMessages" :key="message.id">
