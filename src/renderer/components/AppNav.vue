@@ -1,5 +1,10 @@
 <template>
   <div id="nav" class="aroma__nav">
+    <b-link @click.prevent="handleRefreshApp">
+      <i class="material-icons">
+        cached
+      </i>
+    </b-link>
     <router-link
       to="/setting"
       :class="$route.name === 'setting' ? 'active' : ''">
@@ -9,7 +14,7 @@
 </template>
 
 <script>
-import { remote } from 'electron'
+import { ipcRenderer, remote } from 'electron'
 import path from 'path'
 import fs from 'fs'
 
@@ -22,6 +27,11 @@ export default {
       let base64Image = fs.readFileSync(imgPath, 'base64')
       return `data:image/svg+xml;base64,${base64Image}`
     }
+  },
+  methods: {
+    handleRefreshApp () {
+      ipcRenderer.send('reload-app')
+    }
   }
 }
 </script>
@@ -30,16 +40,16 @@ export default {
 .aroma__nav {
   background: #333;
   display: flex;
-  justify-content: space-between;
+  justify-content: flex-end;
   align-items: center;
-  padding: 2px 15px;
+  padding: 2px 10px;
   .devices__select {
     min-width: 250px;
     display: flex;
     flex-flow: column;
   }
   a {
-    padding: 15px 15px;
+    padding: 10px 15px;
     display: flex;
     flex-flow: row wrap;
     align-items: center;

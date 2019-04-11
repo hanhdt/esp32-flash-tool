@@ -3,7 +3,7 @@
   <footer class="footer-site fixed-bottom">
     <div class="container">
       <div class="copy-right text-center">
-        © 2019 AROMAJOIN CORPORATION - <span>{{ appVersion }}</span>
+        © 2019 Developed with ❤️ at AROMAJOIN - <span>{{ appVersion }}</span>
       </div>
     </div>
   </footer>

@@ -3,25 +3,13 @@
     <div class="container">
       <b-card
         class="mb-2"
-        bg-variant="light"
-        header="Aroma Shooter Firmware Flashing Tool"
+        bg-variant="dark"
       >
         <b-card-body>
           <b-form>
+            <!-- Select compressed firmware image -->
             <b-form-group
-              label="Serial port:"
-              label-for="serialPortInput"
-            >
-              <div class="devices__select">
-                <b-form-select
-                  id="serialPortInput"
-                  v-model="selectedSerialPort"
-                  :options="deviceOptions"
-                />
-              </div>
-            </b-form-group>
-            <b-form-group
-              label="Firmware image:"
+              label="Select image:"
             >
               <b-form-file
                 v-model="selectedSingleFirmwareFile"
@@ -32,14 +20,32 @@
               ></b-form-file>
             </b-form-group>
 
+            <!-- Select ESP board -->
+            <b-form-group
+              label="Select board:"
+              label-for="serialPortInput"
+            >
+              <div class="devices__select">
+                <b-form-select
+                  id="serialPortInput"
+                  v-model="selectedSerialPort"
+                  :options="deviceOptions"
+                />
+              </div>
+            </b-form-group>
+
+            <!-- Flash! -->
             <b-button
               v-b-toggle.collapse-progress
               @click.prevent="onFlashingSubmit"
               variant="success"
+              size="lg"
               :disabled="inProgress || !isReadyFlashing"
             >
-              FLASH
+              <i class="material-icons">flash_on</i>Flash!
             </b-button>
+
+            <!-- Progress details -->
             <b-collapse id="collapse-progress" class="mt-3">
               <b-card  class="mt-3">
                 <p class="card-text" v-if="inProgress">
@@ -93,7 +99,6 @@ export default {
     ]),
     deviceOptions () {
       let options = [{ value: null, text: '--- Select AS board ---' }]
-      options.push({ value: 'all', text: 'All connected boards' })
       this.connectedDevices.forEach((device) => {
         options.push({ value: device.comName, text: device.comName + ' - ' + device.manufacturer })
       })

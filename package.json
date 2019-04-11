@@ -63,7 +63,7 @@
   },
   "dependencies": {
     "bootstrap-vue": "^2.0.0-rc.18",
-    "jquery": "^3.3.1",
+    "jquery": "^3.4.0",
     "lodash": "^4.17.11",
     "normalize.css": "^8.0.1",
     "python-shell": "^1.0.7",
@@ -133,7 +133,7 @@
     "vue-template-compiler": "^2.6.10",
     "webpack": "^4.29.6",
     "webpack-cli": "^3.3.0",
-    "webpack-dev-server": "^3.3.0",
+    "webpack-dev-server": "^3.3.1",
     "webpack-hot-middleware": "^2.22.2",
     "webpack-merge": "^4.2.1"
   }

@@ -92,6 +92,10 @@ app.on('activate', () => {
   }
 })
 
+ipcMain.on('reload-app', (event) => {
+  mainWindow.reload()
+})
+
 ipcMain.on('reset-settings', (event) => {
   app.relaunch()
   app.quit()
