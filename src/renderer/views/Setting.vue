@@ -1,13 +1,6 @@
 <template>
   <div class="about">
     <div class="container">
-      <router-link
-        to="/"
-        class="btn btn-link mt-2 mb-3">
-        <i class="material-icons">
-          arrow_back
-        </i>
-      </router-link>
       <div class="about__group">
         <h1 class="about__name">
           {{ $t("contact_title") }}

@@ -4,25 +4,31 @@
       <b-card
         class="mb-2"
         bg-variant="dark"
+        border-variant="dark"
       >
         <b-card-body>
           <b-form>
             <!-- Select compressed firmware image -->
             <b-form-group
-              label="Select image:"
+              label="Select image"
             >
-              <b-form-file
-                v-model="selectedSingleFirmwareFile"
-                :state="Boolean(selectedSingleFirmwareFile)"
-                placeholder="Choose a file..."
-                drop-placeholder="Drop file here..."
-                accept="application/zip"
-              ></b-form-file>
+              <div class="fwimage__select">
+                <b-form-file
+                  v-model="selectedSingleFirmwareFile"
+                  :state="Boolean(selectedSingleFirmwareFile)"
+                  placeholder="Choose an img, zip, iso, ..."
+                  drop-placeholder="Drop file here..."
+                  accept="application/zip, application/x-tar, application/x-7z-compressed,
+                    application/x-bzip, application/x-bzip2, application/octet-stream,
+                    application/x-rar-compressed, application/img , application/x-img"
+                ></b-form-file>
+              </div>
+              
             </b-form-group>
 
             <!-- Select ESP board -->
             <b-form-group
-              label="Select board:"
+              label="ASN board"
               label-for="serialPortInput"
             >
               <div class="devices__select">
@@ -35,19 +41,23 @@
             </b-form-group>
 
             <!-- Flash! -->
-            <b-button
-              v-b-toggle.collapse-progress
-              @click.prevent="onFlashingSubmit"
-              variant="success"
-              size="lg"
-              :disabled="inProgress || !isReadyFlashing"
-            >
-              <i class="material-icons">flash_on</i>Flash!
-            </b-button>
+            <div class="mt-4 d-flex justify-content-end">
+              <b-button
+                v-b-toggle.collapse-progress
+                v-b-tooltip.hover
+                title="FLASH!"
+                variant="success"
+                size="sm"
+                @click.prevent="onFlashingSubmit"
+                :disabled="inProgress || !isReadyFlashing"
+              >
+                <i class="material-icons">flash_on</i>
+              </b-button>
+            </div>
 
             <!-- Progress details -->
             <b-collapse id="collapse-progress" class="mt-3">
-              <b-card  class="mt-3">
+              <b-card class="mt-3" bg-variant="dark">
                 <p class="card-text" v-if="inProgress">
                   <b-spinner variant="success" label="Spinning" small></b-spinner>
                   Writing firmware into ASN board...
@@ -196,8 +206,7 @@ export default {
 <style lang="scss" scoped>
   .home {
     min-height: 100vh;
-    padding-top: 80px;
-    padding-bottom: 110px;
+    padding-top: 100px;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -207,12 +216,17 @@ export default {
     background-size: cover;
     @media (max-width: 991px) {
       align-items: flex-start;
-      padding-top: 80px;
+      padding-top: 110px;
     }
-    .devices__select {
+    .fwimage__select, .devices__select {
       min-width: 250px;
       display: flex;
       flex-flow: column;
+    }
+    form {
+      button {
+        min-width: 92px;
+      }
     }
   }
 </style>

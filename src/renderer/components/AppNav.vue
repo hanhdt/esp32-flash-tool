@@ -6,9 +6,18 @@
       </i>
     </b-link>
     <router-link
+      v-if="$route.name !== 'setting'"
       to="/setting"
       :class="$route.name === 'setting' ? 'active' : ''">
       <img :src="settingImageUrl" alt="">
+    </router-link>
+    <router-link
+      v-else
+      to="/"
+    >
+      <i class="material-icons">
+        arrow_back
+      </i>
     </router-link>
   </div>
 </template>
@@ -77,7 +86,7 @@ export default {
 }
 .dark-theme {
   .aroma__nav {
-    background: #333;
+    background: #343a40;
      a {
       color: #fff;
       img {
