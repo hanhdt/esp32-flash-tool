@@ -10,7 +10,6 @@
             <li>{{ $t("contact_headquater_address") }} </li>
             <li><a href="mailto:contact@aromajoin.com">{{ $t("contact_email") }}</a></li>
             <li>{{ $t("contact_tel") }}</li>
-            <li>{{ $t("contact_app_version") }}: {{ appVersion }}</li>
           </ul>
           <ul class="about__social list-unstyled">
             <li>
@@ -48,9 +47,6 @@ import fs from 'fs'
 export default {
   name: 'Setting',
   computed: {
-    appVersion () {
-      return process.env.npm_package_version || remote.app.getVersion()
-    },
     websiteImageUrl () {
       let imgPath = path.join(remote.app.getPath('userData'), '/images/',
         'globe-solid.svg')
@@ -78,8 +74,6 @@ export default {
   },
   methods: {
     openExternalLink (link) {
-      // eslint-disable-next-line
-      console.log("Open", link)
       shell.openExternal(link)
     }
   }

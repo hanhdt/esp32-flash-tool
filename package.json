@@ -3,7 +3,7 @@
   "productName": "ASNFirmwareTool",
   "version": "1.0.0",
   "author": "Hanh D. Tran <tranduchanh@aromajoin.com>",
-  "description": "A desktop application allows to flashing Aroma Shooter boards with ESP32 inside",
+  "description": "A desktop application allows to simplify flashing Aroma Shooter boards with ESP32 inside",
   "copyright": "Copyright © 2019 Aromajoin Corporation",
   "homepage": "https://aromajoin.com",
   "license": "Apache-2.0",
@@ -73,7 +73,7 @@
     "vue": "^2.6.10",
     "vue-electron": "^1.0.6",
     "vue-i18n": "^8.10.0",
-    "vue-router": "^3.0.3",
+    "vue-router": "^3.0.4",
     "vuex": "^3.1.0",
     "vuex-electron": "^1.0.3",
     "yauzl": "^2.10.0"
