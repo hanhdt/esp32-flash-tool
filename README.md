@@ -1,4 +1,4 @@
-# asn-firmware-tool
+# ESP32 Flash Tool
 
 A desktop application for flashing production ESP32 firmware with simplify UI and focus on mass manufacturing process.
 
