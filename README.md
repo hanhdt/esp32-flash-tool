@@ -1,6 +1,6 @@
 # asn-firmware-tool
 
-ASN desktop application for flashing production firmware. It is built on Esptool.py wrapper, Electron and Vue.js
+A desktop application for flashing production ESP32 firmware with simplify UI and focus on mass manufacturing process.
 
 ## Build Setup
 
