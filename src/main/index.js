@@ -1,5 +1,5 @@
 /**
- * Copyright (C) 2019 Aromajoin Corporation.
+ * Copyright (C) 2019 Hanh D. TRAN
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -46,7 +46,7 @@ function createWindow () {
     resizable: false,
     center: true,
     darkTheme: true,
-    icon: path.join(__static, '/images/fw_tool_512x512.png')
+    icon: path.join(__static, '/images/512x512.png')
   })
 
   mainWindow.loadURL(winURL)

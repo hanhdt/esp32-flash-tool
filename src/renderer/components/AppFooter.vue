@@ -1,10 +1,9 @@
 <template>
   <!-- FOOTER -->
   <footer class="footer-site fixed-bottom">
-    <div class="container">
-      <div class="copy-right text-center">
-        © 2019 Developed with ❤️ at AROMAJOIN - <span>{{ appVersion }}</span>
-      </div>
+    <div class="copy-right text-center">
+      © 2019 Developed with ❤️ by Hanh D. TRAN
+      <span>{{ appVersion }}</span>
     </div>
   </footer>
 </template>
@@ -34,6 +33,8 @@ export default {
     text-decoration: underline;
     text-decoration-style: dotted;
     text-decoration-color: #1e272e;
+    float: right;
+    margin-right: 10px;
   }
 }
 .light-theme {

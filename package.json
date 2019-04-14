@@ -1,11 +1,11 @@
 {
-  "name": "asn-firmware-tool",
-  "productName": "ASNFirmwareTool",
-  "version": "1.0.0",
-  "author": "Hanh D. Tran <tranduchanh@aromajoin.com>",
-  "description": "A desktop application allows to simplify flashing Aroma Shooter boards with ESP32 inside",
-  "copyright": "Copyright © 2019 Aromajoin Corporation",
-  "homepage": "https://aromajoin.com",
+  "name": "esp32-flash-tool",
+  "productName": "ESP32FlashTool",
+  "version": "0.1.0",
+  "author": "Hanh D. Tran <tranduchanh.ms@gmail.com>",
+  "description": "A desktop application allows to simplify flashing ESP32 boards",
+  "copyright": "Copyright © 2019 Hanh D. TRAN",
+  "homepage": "https://hanhdt.github.io",
   "license": "Apache-2.0",
   "main": "./dist/electron/main.js",
   "scripts": {
@@ -25,8 +25,8 @@
     "postinstall": "npm run lint:fix"
   },
   "build": {
-    "productName": "asn-firmware-tool",
-    "appId": "com.aromajoin.asntool",
+    "productName": "esp32-flash-tool",
+    "appId": "com.hanhdt.esp32.flashtool",
     "asar": true,
     "directories": {
       "output": "build"
