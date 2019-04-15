@@ -4,8 +4,9 @@ import path from 'path'
 const yauzl = require('yauzl')
 
 function uploadBinFiles (mainWindow, fileName, readStream) {
-  const uploadDir = path.join(app.getPath('userData'), '/firmware/')
-  if (!fs.existsSync(uploadDir)) { // create folder if not existed!
+  let uploadDir = path.join(app.getPath('appData'), '/esp32-flash-tool/', '/firmware/')
+  // create folder if not existed!
+  if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir)
   }
 
@@ -15,6 +16,7 @@ function uploadBinFiles (mainWindow, fileName, readStream) {
   readStream.on('end', () => {
     // console.log('Unzipped: ', dest)
 
+    // TODO: Need to detect .bin files automatically, should be specfied from settings
     if (fileName === 'bootloader.bin') {
       mainWindow.webContents.send('bin-file-unzipped', 0, dest)
     } else if (fileName === 'ota_data_initial.bin') {
@@ -36,10 +38,9 @@ export default function unzipImage (mainWindow, params) {
     })
 
     zipFile.on('entry', (entry) => {
-      // console.log('File:', entry.fileName)
       zipFile.openReadStream(entry, (err, readStream) => {
         if (err) throw err
-
+        console.log('File:', entry.fileName)
         uploadBinFiles(mainWindow, entry.fileName, readStream)
       })
     })

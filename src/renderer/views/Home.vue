@@ -16,7 +16,7 @@
                 <b-form-file
                   v-model="selectedSingleFirmwareFile"
                   :state="Boolean(selectedSingleFirmwareFile)"
-                  placeholder="Choose an img, zip, iso, ..."
+                  placeholder="Choose an .img, .zip, .iso, ..."
                   drop-placeholder="Drop file here..."
                   accept="application/zip, application/x-tar, application/x-7z-compressed,
                     application/x-bzip, application/x-bzip2, application/octet-stream,
