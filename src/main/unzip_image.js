@@ -4,7 +4,7 @@ import path from 'path'
 const yauzl = require('yauzl')
 
 function uploadBinFiles (mainWindow, fileName, readStream) {
-  let uploadDir = path.join(app.getPath('appData'), '/esp32-flash-tool/', '/firmware/')
+  let uploadDir = path.join(app.getPath('userData'), '/firmware/')
   // create folder if not existed!
   if (!fs.existsSync(uploadDir)) {
     fs.mkdirSync(uploadDir)
