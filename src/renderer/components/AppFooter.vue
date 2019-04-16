@@ -32,7 +32,7 @@ export default {
   span {
     text-decoration: underline;
     text-decoration-style: dotted;
-    text-decoration-color: #1e272e;
+    text-decoration-color: #F0F4F8;
     float: right;
     margin-right: 10px;
   }

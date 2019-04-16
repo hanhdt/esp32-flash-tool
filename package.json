@@ -73,7 +73,7 @@
     "vue": "^2.6.10",
     "vue-electron": "^1.0.6",
     "vue-i18n": "^8.10.0",
-    "vue-router": "^3.0.4",
+    "vue-router": "^3.0.5",
     "vuex": "^3.1.0",
     "vuex-electron": "^1.0.3",
     "yauzl": "^2.10.0"
@@ -98,7 +98,7 @@
     "del": "^3.0.0",
     "devtron": "^1.4.0",
     "electron": "^2.0.18",
-    "electron-builder": "^20.39.0",
+    "electron-builder": "^20.40.2",
     "electron-debug": "^1.5.0",
     "electron-devtools-installer": "^2.2.4",
     "eslint": "^4.19.1",
