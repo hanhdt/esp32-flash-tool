@@ -1,30 +1,31 @@
 import { PythonShell } from 'python-shell'
 
-let options = {
-  mode: 'text',
-  pythonPath: 'python',
-  pythonOptions: ['-u'], // get print results in real-time
-  scriptPath: 'node_modules/esptool.git/',
-  args: []
-}
-
 export default function spiFlashImage (mainWindow, params) {
-  options.args = [
-    '--chip', params.chip,
-    '--port', params.port,
-    '--baud', params.baudRate,
-    '--before', params.before,
-    '--after', params.after,
-    'write_flash', params.compress,
-    '--flash_mode', params.flashMode,
-    '--flash_freq', params.flashFreq,
-    '--flash_size', params.flashSize,
-    params.initialOTAIndex, params.initialOTADataBinPath,
-    params.bootloaderIndex, params.bootloaderBinPath,
-    params.appIndex, params.appBinPath,
-    params.partitionsTableIndex, params.partitionsBinPath]
+  const esptoolPath = path.join(__static, '/esptool/')
 
-  let pyShell = new PythonShell('esptool.py', options)
+  const options = {
+    mode: 'text',
+    pythonPath: 'python',
+    pythonOptions: ['-u'], // get print results in real-time
+    scriptPath: esptoolPath,
+    args: [
+      '--chip', params.chip,
+      '--port', params.port,
+      '--baud', params.baudRate,
+      '--before', params.before,
+      '--after', params.after,
+      'write_flash', params.compress,
+      '--flash_mode', params.flashMode,
+      '--flash_freq', params.flashFreq,
+      '--flash_size', params.flashSize,
+      params.initialOTAIndex, params.initialOTADataBinPath,
+      params.bootloaderIndex, params.bootloaderBinPath,
+      params.appIndex, params.appBinPath,
+      params.partitionsTableIndex, params.partitionsBinPath
+    ]
+  }
+
+  const pyShell = new PythonShell('esptool.py', options)
 
   pyShell.on('message', (message) => {
     // console.log('message: %j', message)
