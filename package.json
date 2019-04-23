@@ -9,7 +9,6 @@
   "license": "Apache-2.0",
   "main": "./dist/electron/main.js",
   "scripts": {
-    "install": "napa git+https://git@github.com/espressif/esptool.git",
     "build": "node .electron-vue/build.js && electron-builder",
     "build:dir": "node .electron-vue/build.js && electron-builder --dir",
     "build:clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",
@@ -25,9 +24,9 @@
     "postinstall": "npm run lint:fix"
   },
   "build": {
+    "appId": "com.hanhdt.esp.flashtool",
     "productName": "ESP32FlashTool",
-    "appId": "com.hanhdt.esp32.flashtool",
-    "asar": true,
+    "asar": false,
     "directories": {
       "output": "build"
     },
@@ -60,7 +59,8 @@
       "target": [
         "AppImage",
         "deb"
-      ]
+      ],
+      "maintainer": "Hanh D. TRAN <tranduchanh.ms@gmail.com>"
     }
   },
   "dependencies": {
@@ -124,7 +124,6 @@
     "mini-css-extract-plugin": "0.4.0",
     "mocha": "^5.2.0",
     "multispinner": "^0.2.1",
-    "napa": "^3.0.0",
     "node-loader": "^0.6.0",
     "node-sass": "^4.11.0",
     "sass-loader": "^7.0.3",

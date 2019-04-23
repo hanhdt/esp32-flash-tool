@@ -1,4 +1,5 @@
 import { PythonShell } from 'python-shell'
+import path from 'path'
 
 export default function spiFlashImage (mainWindow, params) {
   const esptoolPath = path.join(__static, '/esptool/')
