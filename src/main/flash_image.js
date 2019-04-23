@@ -33,8 +33,10 @@ export default function spiFlashImage (mainWindow, params) {
   })
 
   pyShell.end((err, code, signal) => {
-    if (err) throw err
-
+    if (err) {
+      mainWindow.webContents.send('flashing-progress-completed', 1, null)
+      throw err
+    }
     mainWindow.webContents.send('flashing-progress-completed', code, signal)
   })
 }

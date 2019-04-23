@@ -46,7 +46,7 @@ function createWindow () {
     resizable: false,
     center: true,
     darkTheme: true,
-    icon: path.join(__static, '/images/512x512.png')
+    icon: path.join(__static, '/icons/icon.png')
   })
 
   mainWindow.loadURL(winURL)
