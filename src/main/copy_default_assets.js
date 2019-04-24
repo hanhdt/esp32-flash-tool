@@ -13,7 +13,7 @@ function defaultHeaderIcons () {
     path.join(uploadDir, 'settings.svg'))
 }
 
-function defaultAboutIcons () {
+function defaultSettingIcons () {
   const uploadDir = path.join(app.getPath('userData'), '/images/')
   if (!fs.existsSync(uploadDir)) { // create folder if not existed!
     fs.mkdirSync(uploadDir)
@@ -30,5 +30,5 @@ function defaultAboutIcons () {
 
 export default function copyDefaultAssets () {
   defaultHeaderIcons()
-  defaultAboutIcons()
+  defaultSettingIcons()
 }

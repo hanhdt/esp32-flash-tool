@@ -40,7 +40,7 @@ export default function unzipImage (mainWindow, params) {
     zipFile.on('entry', (entry) => {
       zipFile.openReadStream(entry, (err, readStream) => {
         if (err) throw err
-        console.log('File:', entry.fileName)
+        // console.log('File:', entry.fileName)
         uploadBinFiles(mainWindow, entry.fileName, readStream)
       })
     })

@@ -31,9 +31,9 @@ export default {
   name: 'AppNav',
   computed: {
     settingImageUrl () {
-      let imgPath = path.join(remote.app.getPath('userData'), '/images/',
+      const imgPath = path.join(remote.app.getPath('userData'), '/images/',
         'settings.svg')
-      let base64Image = fs.readFileSync(imgPath, 'base64')
+      const base64Image = fs.readFileSync(imgPath, 'base64')
       return `data:image/svg+xml;base64,${base64Image}`
     }
   },
@@ -49,7 +49,7 @@ export default {
 .aroma__nav {
   background: #333;
   display: flex;
-  justify-content: flex-end;
+  justify-content: space-between;
   align-items: center;
   padding: 2px 10px;
   .devices__select {
@@ -69,7 +69,6 @@ export default {
     }
     img {
       width: 25px;
-      margin-right: 10px;
     }
   }
 }

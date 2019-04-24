@@ -26,9 +26,9 @@
               
             </b-form-group>
 
-            <!-- Select ASN board -->
+            <!-- Select ESP32 board -->
             <b-form-group
-              label="ASN board"
+              label="ESP32 board"
               label-for="serialPortInput"
             >
               <div class="devices__select">
@@ -126,7 +126,7 @@ export default {
       'singleFirmwareFile'
     ]),
     deviceOptions () {
-      let options = [{ value: null, text: '--- Select AS board ---' }]
+      let options = [{ value: null, text: '--- Select board ---' }]
       this.connectedDevices.forEach((device) => {
         options.push({ value: device.comName, text: device.comName + ' - ' + device.manufacturer })
       })
