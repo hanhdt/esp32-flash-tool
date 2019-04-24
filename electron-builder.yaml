@@ -1,0 +1,55 @@
+directories:
+  output: release
+appId: com.hanhdt.esp.flashtool
+asar: false
+productName: ESP32FlashTool
+files:
+  - dist/electron/**/*
+
+# Mac OS configuration
+mac:
+  category: public.app-category.utilities
+  entitlements: build/entitlements.mac.plist
+  icon: static/icons/icon.icns
+  target:
+    - pkg
+    - dmg
+    - zip
+    - mas
+
+# Mac OS AppStore configuration
+# mas:
+#   type: distribution
+#   category: public.app-category.utilities
+#   entitlements: build/entitlements.mas.plist
+#   icon: static/icons/icon.icns
+
+dmg:
+  contents:
+    - x: 410
+      y: 220
+      type: "link"
+      path: "/Applications"
+    - x: 130
+      y: 220
+      type: "file"
+
+# Windows configuration
+win:
+  icon: static/icons/icon.ico
+  target:
+    - "zip"
+    - "nsis"
+
+# Config for the windows installer
+nsis:
+  oneClick: true
+  perMachine: true
+
+# Linux configuration
+linux:
+  icon: static/icons/icons
+  target:
+    - "AppImage"
+    - "deb"
+  maintainer: "Hanh D. TRAN <tranduchanh.ms@gmail.com>"

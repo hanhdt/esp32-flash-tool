@@ -23,46 +23,6 @@
     "unit": "karma start test/unit/karma.conf.js",
     "postinstall": "npm run lint:fix"
   },
-  "build": {
-    "appId": "com.hanhdt.esp.flashtool",
-    "productName": "ESP32FlashTool",
-    "asar": false,
-    "directories": {
-      "output": "build"
-    },
-    "files": [
-      "dist/electron/**/*"
-    ],
-    "dmg": {
-      "contents": [
-        {
-          "x": 410,
-          "y": 150,
-          "type": "link",
-          "path": "/Applications"
-        },
-        {
-          "x": 130,
-          "y": 150,
-          "type": "file"
-        }
-      ]
-    },
-    "mac": {
-      "icon": "static/icons/icon.icns"
-    },
-    "win": {
-      "icon": "static/icons/icon.ico"
-    },
-    "linux": {
-      "icon": "static/icons",
-      "target": [
-        "AppImage",
-        "deb"
-      ],
-      "maintainer": "Hanh D. TRAN <tranduchanh.ms@gmail.com>"
-    }
-  },
   "dependencies": {
     "bootstrap-vue": "^2.0.0-rc.19",
     "jquery": "^3.4.0",
