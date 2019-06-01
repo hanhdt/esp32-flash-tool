@@ -6,6 +6,7 @@ export default function scanSerialPorts (mainWindow) {
       mainWindow.webContents.send('ports-scanned', null)
       return
     }
+
     let validPorts = ports.filter((port) => {
       return port.manufacturer === 'FTDI' || port.manufacturer === 'Silicon Labs'
     })

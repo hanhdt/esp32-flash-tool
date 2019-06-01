@@ -1,14 +1,20 @@
 <template>
   <div id="nav" class="aroma__nav">
-    <b-link @click.prevent="handleRefreshApp">
+    <!-- Refresh boards -->
+    <b-link 
+      @click.prevent="handleRefreshApp"
+    >
       <i class="material-icons">
         cached
       </i>
     </b-link>
+
+    <!-- Setting -->
     <router-link
       v-if="$route.name !== 'setting'"
       to="/setting"
-      :class="$route.name === 'setting' ? 'active' : ''">
+      :class="$route.name === 'setting' ? 'active' : ''"
+    >
       <img :src="settingImageUrl" alt="">
     </router-link>
     <router-link

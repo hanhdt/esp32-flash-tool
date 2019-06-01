@@ -20,7 +20,7 @@ import path from 'path'
 import copyDefaultAssets from './copy_default_assets'
 import spiFlashImage from './flash_image'
 import scanSerialPorts from './scan_serial_ports'
-import unzipImage from './unzip_image'
+import processCompressedFile from './unzip_image'
 
 /**
  * Set `__static` path to static files in production
@@ -108,26 +108,27 @@ ipcMain.on('reset-settings', (event) => {
 })
 
 // Fired when button flash! is clicked
-ipcMain.on('spi-flash-image', (event, serialPort, initialOTADataBinPath,
-  bootloaderBinPath, appBinPath, partitionsBinPath) => {
+ipcMain.on('spi-flash-image', (event, flashParams) => {
   const params = {
     before: 'default_reset',
     after: 'hard_reset',
     chip: 'esp32',
-    port: serialPort,
+    port: flashParams.serialPort,
     baudRate: 115200,
     flashMode: 'dio',
     compress: '-z',
     flashFreq: '80m',
     flashSize: '8MB',
-    initialOTAIndex: '0xd000',
-    initialOTADataBinPath: initialOTADataBinPath,
-    bootloaderIndex: '0x1000',
-    bootloaderBinPath: bootloaderBinPath,
-    appIndex: '0x10000',
-    appBinPath: appBinPath,
-    partitionsTableIndex: '0x8000',
-    partitionsBinPath: partitionsBinPath
+    bootloaderIndex: flashParams.bootLoaderOffset,
+    bootloaderBin: flashParams.bootLoaderFile,
+    initialOTAIndex: flashParams.initialOTADataOffset,
+    initialOTADataBin: flashParams.initialOTADataFile,
+    partitionsTableIndex: flashParams.partitionsTableOffset,
+    partitionsBinPath: flashParams.partitionsTableFile,
+    factorySerialIndex: flashParams.factorySerialOffset,
+    factorySerialBin: flashParams.factorySerialFile,
+    appIndex: flashParams.appOffset,
+    appBinPath: flashParams.appFile
   }
   spiFlashImage(mainWindow, params)
 })
@@ -139,9 +140,11 @@ ipcMain.on('scan-devices', (event) => {
 
 // Fired for unzipping firmware image event
 ipcMain.on('unzip-firmware-file', (event, zipFilePath) => {
-  const params = {
+  processCompressedFile(mainWindow, {
+    index: 0,
+    offset: 0,
     filePath: zipFilePath,
-    options: { lazyEntries: false }
-  }
-  unzipImage(mainWindow, params)
+    options: { lazyEntries: false },
+    target: 'partitions.csv'
+  })
 })

@@ -10,20 +10,18 @@
           <b-form>
             <!-- Select compressed firmware image -->
             <b-form-group
-              label="Select image"
+              label="Select zipped file"
             >
               <div class="fwimage__select">
                 <b-form-file
                   v-model="selectedSingleFirmwareFile"
                   :state="Boolean(selectedSingleFirmwareFile)"
-                  placeholder="Choose an .img, .zip, .iso, ..."
-                  drop-placeholder="Drop file here..."
+                  placeholder="Choose a compressed .zip file"
+                  drop-placeholder="Drop zipped file here..."
                   accept="application/zip, application/x-tar, application/x-7z-compressed,
-                    application/x-bzip, application/x-bzip2, application/octet-stream,
-                    application/x-rar-compressed, application/img , application/x-img"
+                    application/x-bzip, application/x-bzip2, application/x-rar-compressed"
                 ></b-form-file>
-              </div>
-              
+              </div>       
             </b-form-group>
 
             <!-- Select ESP32 board -->
@@ -66,7 +64,7 @@
               >
                 <p 
                   class="card-text"
-                  v-if="inProgress"
+                  v-if="inProgress && flashingStatus === 0"
                 >
                   <b-spinner
                     variant="success"
@@ -75,11 +73,23 @@
                   </b-spinner>
                   Writing firmware into the board...
                 </p>
-                <p class="card-text" v-else> 
-                  <strong>Flashing is finished!</strong>
+                <p
+                  class="card-text"
+                  v-else-if="!inProgress && flashingStatus === 1"
+                >
+                  <i class="material-icons">
+                    flash_off
+                  </i>
+                  <strong>Flashing is not completed!</strong>
+                </p>
+                <p
+                  class="card-text"
+                  v-else
+                > 
                   <i class="material-icons">
                     check_circle
                   </i>
+                  <strong>Flashing is finished!</strong>
                 </p>
                 <b-card-text>
                   <em 
@@ -101,42 +111,46 @@
 // @ is an alias to /src
 import { ipcRenderer } from 'electron'
 import { mapActions, mapGetters } from 'vuex'
+import uuidv4 from 'uuid/v4'
 
 export default {
   name: 'home',
-  data () {
-    return {
-      inProgress: false
-    }
-  },
-  mounted () {
+  create () {
     this.listenFlashingUpdate()
     this.listenFlashingComplete()
     this.listenBinFileUnzip()
   },
   computed: {
     ...mapGetters([
+      'inProgress',
       'serialPort',
-      'initialOTADataFile',
       'bootLoaderFile',
-      'appFile',
+      'bootLoaderOffset',
+      'initialOTADataFile',
+      'initialOTADataOffset',
       'partitionsTableFile',
+      'partitionsTableOffset',
+      'factorySerialFile',
+      'factorySerialOffset',
+      'appFile',
+      'appOffset',
       'progressMessages',
       'connectedDevices',
-      'singleFirmwareFile'
+      'singleFirmwareFile',
+      'flashingStatus',
+      'initialOTADataName',
+      'bootLoaderName',
+      'partitionsTableName',
+      'factorySerialName',
+      'appName',
+      'isReadyFlashing'
     ]),
     deviceOptions () {
-      let options = [{ value: null, text: '--- Select board ---' }]
+      let options = [{ value: null, text: '--- Select ESP32 board ---' }]
       this.connectedDevices.forEach((device) => {
         options.push({ value: device.comName, text: device.comName + ' - ' + device.manufacturer })
       })
       return options
-    },
-    isReadyFlashing () {
-      return !this.isEmptyString(this.bootLoaderFile) &&
-        !this.isEmptyString(this.initialOTADataFile) &&
-        !this.isEmptyString(this.partitionsTableFile) &&
-        !this.isEmptyString(this.appFile)
     },
     selectedSerialPort: {
       get () {
@@ -157,23 +171,50 @@ export default {
   },
   methods: {
     ...mapActions([
+      'updateInProgress',
       'updateSerialPort',
-      'updateOTADataFile',
       'updateBootLoaderFile',
-      'updateAppFile',
+      'updateBootLoaderName',
+      'updateBootLoaderOffset',
+      'updateOTADataFile',
+      'updateOTADataName',
+      'updateOTADataOffset',
       'updatePartitionsTableFile',
+      'updatePartitionsTableName',
+      'updatePartitionsTableOffset',
+      'updateFactorySerialFile',
+      'updateFactorySerialName',
+      'updateFactorySerialOffset',
+      'updateAppFile',
+      'updateAppName',
+      'updateAppOffset',
       'updateProgress',
       'clearProgressMessages',
-      'updateSingleFirmwareFile'
+      'updateSingleFirmwareFile',
+      'updateFlashingStatus'
     ]),
     onFlashingSubmit () {
-      this.inProgress = true
-      ipcRenderer.send('spi-flash-image', this.serialPort, this.initialOTADataFile,
-        this.bootLoaderFile, this.appFile, this.partitionsTableFile)
+      try {
+        this.updateInProgress(true)
+        this.clearProgressMessages()
+        ipcRenderer.send('spi-flash-image', {
+          serialPort: this.serialPort,
+          bootLoaderFile: this.bootLoaderFile,
+          bootLoaderOffset: this.bootLoaderOffset,
+          initialOTADataFile: this.initialOTADataFile,
+          initialOTADataOffset: this.initialOTADataOffset,
+          partitionsTableFile: this.partitionsTableFile,
+          partitionsTableOffset: this.partitionsTableOffset,
+          factorySerialFile: this.factorySerialFile,
+          factorySerialOffset: this.factorySerialOffset,
+          appFile: this.appFile,
+          appOffset: this.appOffset
+        })
+      } catch (e) {
+        console.error(e)
+      }
     },
     listenFlashingUpdate () {
-      this.clearProgressMessages()
-
       ipcRenderer.on('flashing-progress-updated', (event, message) => {
         if (message) {
           // console.log('Flashing progress:', message)
@@ -185,37 +226,47 @@ export default {
     listenFlashingComplete () {
       ipcRenderer.on('flashing-progress-completed', (event, code) => {
         if (code === 0) {
-          this.updateProgress('Flashing done.')
+          this.updateProgress({id: uuidv4(), data: 'Flashing done.'})
         } else {
-          this.updateProgress('Flashing failed.')
+          this.updateProgress({id: uuidv4(), data: 'Flashing failed.'})
         }
-        this.inProgress = false
+
+        this.updateFlashingStatus(code)
+        this.updateInProgress(false)
       })
     },
     listenBinFileUnzip () {
-      ipcRenderer.on('bin-file-unzipped', (event, order, dest) => {
-        switch (order) {
-          case 0:
-            this.updateBootLoaderFile(dest)
-            break
+      ipcRenderer.on('bin-file-unzipped', (event, index, offset, filename, dest) => {
+        switch (index) {
           case 1:
-            this.updateOTADataFile(dest)
+            this.updateBootLoaderName(filename)
+            this.updateBootLoaderFile(dest)
+            this.updateBootLoaderOffset(offset)
             break
           case 2:
-            this.updatePartitionsTableFile(dest)
+            this.updateOTADataName(filename)
+            this.updateOTADataFile(dest)
+            this.updateOTADataOffset(offset)
             break
           case 3:
+            this.updatePartitionsTableName(filename)
+            this.updatePartitionsTableFile(dest)
+            this.updatePartitionsTableOffset(offset)
+            break
+          case 4:
+            this.updateFactorySerialName(filename)
+            this.updateFactorySerialFile(dest)
+            this.updateFactorySerialOffset(offset)
+            break
+          case 5:
+            this.updateAppName(filename)
             this.updateAppFile(dest)
+            this.updateAppOffset(offset)
             break
           default:
             break
         }
       })
-    },
-    isEmptyString (value) {
-      return (typeof value === 'string' && !value.trim()) ||
-        typeof value === 'undefined' ||
-        value === null
     }
   }
 }
@@ -232,9 +283,16 @@ export default {
     background-position: center;
     background-repeat: no-repeat;
     background-size: cover;
+    text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
     @media (max-width: 991px) {
       align-items: flex-start;
-      padding-top: 110px;
+      padding-top: 50px;
+    }
+    .background {
+      max-height: 110px;
+      margin-left: auto;
+      margin-right: auto;
+      display: block;
     }
     .fwimage__select, .devices__select {
       min-width: 250px;
@@ -244,6 +302,12 @@ export default {
     form {
       button {
         min-width: 92px;
+      }
+      .card-text {
+        strong {
+          vertical-align: super;
+          padding-left: 5px;
+        }
       }
     }
   }

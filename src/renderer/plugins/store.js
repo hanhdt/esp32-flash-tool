@@ -3,21 +3,43 @@ import Vue from 'vue'
 import Vuex from 'vuex'
 Vue.use(Vuex)
 
+function isEmptyString (value) {
+  return (typeof value === 'string' && !value.trim()) ||
+    typeof value === 'undefined' ||
+    value === null
+}
+
 export default new Vuex.Store({
   state: {
+    inProgress: false,
     appTheme: 'dark-theme',
     locale: 'ja',
     serialPort: null,
-    initialOTADataFile: null,
+    bootLoaderName: '',
     bootLoaderFile: null,
-    appFile: null,
+    bootLoaderOffset: '',
+    initialOTADataName: '',
+    initialOTADataFile: null,
+    initialOTADataOffset: '',
+    partitionsTableName: '',
     partitionsTableFile: null,
+    partitionsTableOffset: '',
+    factorySerialName: '',
+    factorySerialFile: null,
+    factorySerialOffset: '',
+    appName: '',
+    appFile: null,
+    appOffset: '',
     progressMessages: [],
+    flashingStatus: 0,
     connectedDevices: [],
     currentDevice: null,
     singleFirmwareFile: null
   },
   getters: {
+    inProgress (state) {
+      return state.inProgress
+    },
     appTheme (state) {
       return state.appTheme
     },
@@ -27,17 +49,50 @@ export default new Vuex.Store({
     serialPort (state) {
       return state.serialPort
     },
-    initialOTADataFile (state) {
-      return state.initialOTADataFile
+    bootLoaderName (state) {
+      return state.bootLoaderName
     },
     bootLoaderFile (state) {
       return state.bootLoaderFile
     },
-    appFile (state) {
-      return state.appFile
+    bootLoaderOffset (state) {
+      return state.bootLoaderOffset
+    },
+    initialOTADataName (state) {
+      return state.initialOTADataName
+    },
+    initialOTADataFile (state) {
+      return state.initialOTADataFile
+    },
+    initialOTADataOffset (state) {
+      return state.initialOTADataOffset
+    },
+    partitionsTableName (state) {
+      return state.partitionsTableName
     },
     partitionsTableFile (state) {
       return state.partitionsTableFile
+    },
+    partitionsTableOffset (state) {
+      return state.partitionsTableOffset
+    },
+    factorySerialName (state) {
+      return state.factorySerialName
+    },
+    factorySerialFile (state) {
+      return state.factorySerialFile
+    },
+    factorySerialOffset (state) {
+      return state.factorySerialOffset
+    },
+    appName (state) {
+      return state.appName
+    },
+    appFile (state) {
+      return state.appFile
+    },
+    appOffset (state) {
+      return state.appOffset
     },
     progressMessages (state) {
       return state.progressMessages
@@ -50,9 +105,21 @@ export default new Vuex.Store({
     },
     singleFirmwareFile (state) {
       return state.singleFirmwareFile
+    },
+    flashingStatus (state) {
+      return state.flashingStatus
+    },
+    isReadyFlashing (state) {
+      return !isEmptyString(state.bootLoaderFile) &&
+        !isEmptyString(state.initialOTADataFile) &&
+        !isEmptyString(state.partitionsTableFile) &&
+        !isEmptyString(state.appFile)
     }
   },
   mutations: {
+    inProgress (state, status) {
+      state.inProgress = status
+    },
     appTheme (state, theme) {
       state.appTheme = theme
       localStorage.setItem('appTheme', theme)
@@ -63,20 +130,55 @@ export default new Vuex.Store({
     serialPort (state, port) {
       state.serialPort = port
     },
+    bootLoaderName (state, bootLoaderName) {
+      state.bootLoaderName = bootLoaderName
+    },
+    bootLoaderFile (state, bootLoader) {
+      state.bootLoaderFile = bootLoader
+    },
+    bootLoaderOffset (state, bootLoaderOffset) {
+      state.bootLoaderOffset = bootLoaderOffset
+    },
+    initialOTADataName (state, otaDataName) {
+      state.initialOTADataName = otaDataName
+    },
     initialOTADataFile (state, otaDataFile) {
       state.initialOTADataFile = otaDataFile
     },
-    bootLoaderFile (state, bootloader) {
-      state.bootLoaderFile = bootloader
+    initialOTADataOffset (state, initialOTADataOffset) {
+      state.initialOTADataOffset = initialOTADataOffset
     },
-    appFile (state, app) {
-      state.appFile = app
+    partitionsTableName (state, partitionsTableName) {
+      state.partitionsTableName = partitionsTableName
     },
     partitionsTableFile (state, partitions) {
       state.partitionsTableFile = partitions
     },
+    partitionsTableOffset (state, partitionsTableOffset) {
+      state.partitionsTableOffset = partitionsTableOffset
+    },
+    factorySerialName (state, serialName) {
+      state.factorySerialName = serialName
+    },
+    factorySerialFile (state, factorySerial) {
+      state.factorySerialFile = factorySerial
+    },
+    factorySerialOffset (state, factorySerialOffset) {
+      state.factorySerialOffset = factorySerialOffset
+    },
+    appName (state, appName) {
+      state.appName = appName
+    },
+    appFile (state, app) {
+      state.appFile = app
+    },
+    appOffset (state, appOffset) {
+      state.appOffset = appOffset
+    },
     addProgressMessage (state, message) {
-      state.progressMessages.push({ id: Date.now(), data: message })
+      if (!state.progressMessages.includes(message)) {
+        state.progressMessages.push(message)
+      }
     },
     clearProgressMessages (state) {
       if (state.progressMessages.length > 0) {
@@ -84,7 +186,14 @@ export default new Vuex.Store({
       }
     },
     addConnectedDevice (state, device) {
-      if (state.connectedDevices.indexOf(device) === -1) {
+      let isExisted = false
+      state.connectedDevices.forEach((connectedDevice) => {
+        if (connectedDevice.comName === device.comName) {
+          isExisted = true
+        }
+      })
+
+      if (!state.connectedDevices.includes(device) && !isExisted) {
         state.connectedDevices.push(device)
       }
     },
@@ -101,9 +210,15 @@ export default new Vuex.Store({
     singleFirmwareFile (state, filePath) {
       state.singleFirmwareFile = filePath
       ipcRenderer.send('unzip-firmware-file', state.singleFirmwareFile)
+    },
+    flashingStatus (state, status) {
+      state.flashingStatus = status
     }
   },
   actions: {
+    updateInProgress ({ commit }, status) {
+      commit('inProgress', status)
+    },
     updateAppTheme ({ commit }, theme) {
       commit('appTheme', theme)
     },
@@ -113,17 +228,50 @@ export default new Vuex.Store({
     updateSerialPort ({ commit }, port) {
       commit('serialPort', port)
     },
+    updateBootLoaderName ({ commit }, bootLoaderName) {
+      commit('bootLoaderName', bootLoaderName)
+    },
+    updateBootLoaderFile ({ commit }, bootLoader) {
+      commit('bootLoaderFile', bootLoader)
+    },
+    updateBootLoaderOffset ({ commit }, bootLoaderOffset) {
+      commit('bootLoaderOffset', bootLoaderOffset)
+    },
+    updateOTADataName ({ commit }, otaDataName) {
+      commit('initialOTADataName', otaDataName)
+    },
     updateOTADataFile ({ commit }, otaData) {
       commit('initialOTADataFile', otaData)
     },
-    updateBootLoaderFile ({ commit }, bootloader) {
-      commit('bootLoaderFile', bootloader)
+    updateOTADataOffset ({ commit }, otaDataOffset) {
+      commit('initialOTADataOffset', otaDataOffset)
+    },
+    updatePartitionsTableName ({ commit }, partitionsTableName) {
+      commit('partitionsTableName', partitionsTableName)
+    },
+    updatePartitionsTableFile ({ commit }, partitions) {
+      commit('partitionsTableFile', partitions)
+    },
+    updatePartitionsTableOffset ({ commit }, partitionsTableOffset) {
+      commit('partitionsTableOffset', partitionsTableOffset)
+    },
+    updateFactorySerialName ({ commit }, serialName) {
+      commit('factorySerialName', serialName)
+    },
+    updateFactorySerialFile ({ commit }, serial) {
+      commit('factorySerialFile', serial)
+    },
+    updateFactorySerialOffset ({ commit }, serialOffset) {
+      commit('factorySerialOffset', serialOffset)
+    },
+    updateAppName ({ commit }, appName) {
+      commit('appName', appName)
     },
     updateAppFile ({ commit }, app) {
       commit('appFile', app)
     },
-    updatePartitionsTableFile ({ commit }, partitions) {
-      commit('partitionsTableFile', partitions)
+    updateAppOffset ({ commit }, appOffset) {
+      commit('appOffset', appOffset)
     },
     updateProgress ({ commit }, message) {
       commit('addProgressMessage', message)
@@ -145,6 +293,9 @@ export default new Vuex.Store({
     },
     updateSingleFirmwareFile ({ commit }, filePath) {
       commit('singleFirmwareFile', filePath)
+    },
+    updateFlashingStatus ({ commit }, status) {
+      commit('flashingStatus', status)
     }
   }
 })

@@ -76,6 +76,7 @@ body {
   min-width: 320px;
   min-height: 100%;
 }
+
 .light-theme {
   background-color: $light!important;
   color: $dark!important;
@@ -109,6 +110,7 @@ body {
     color: #333!important;
   }
 }
+
 .dark-theme {
   background-color: $dark!important;
   color: $light!important;

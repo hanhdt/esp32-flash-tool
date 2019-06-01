@@ -1,5 +1,6 @@
 import { PythonShell } from 'python-shell'
 import path from 'path'
+const uuidv4 = require('uuid/v4')
 
 export default function spiFlashImage (mainWindow, params) {
   const esptoolPath = path.join(__static, '/esptool/')
@@ -19,10 +20,11 @@ export default function spiFlashImage (mainWindow, params) {
       '--flash_mode', params.flashMode,
       '--flash_freq', params.flashFreq,
       '--flash_size', params.flashSize,
-      params.initialOTAIndex, params.initialOTADataBinPath,
-      params.bootloaderIndex, params.bootloaderBinPath,
-      params.appIndex, params.appBinPath,
-      params.partitionsTableIndex, params.partitionsBinPath
+      params.initialOTAIndex, params.initialOTADataBin,
+      params.bootloaderIndex, params.bootloaderBin,
+      params.partitionsTableIndex, params.partitionsBin,
+      params.factorySerialIndex, params.factorySerialBin,
+      params.appIndex, params.appBin
     ]
   }
 
@@ -30,7 +32,8 @@ export default function spiFlashImage (mainWindow, params) {
 
   pyShell.on('message', (message) => {
     // console.log('message: %j', message)
-    mainWindow.webContents.send('flashing-progress-updated', message)
+    const msg = { id: uuidv4(), data: message }
+    mainWindow.webContents.send('flashing-progress-updated', msg)
   })
 
   pyShell.end((err, code, signal) => {
