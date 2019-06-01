@@ -20,26 +20,38 @@ depending on your platform. (The official pySerial installation instructions are
 
 ## Firmware manufacturing process
 
-...
+Imagine you have at least 5 steps from firmware development to flashing firmware into production board. The app would be used at **Step 5** in the process flowing:
 
-## Build from source
+![Firmware Manufacturing Process](/esp32-firmware-manufacturing-process.png)
 
-``` bash
-# install dependencies
-npm install
+- Step 1: Develop & build firmware, you can use [ESP32-IDF](https://github.com/espressif/esp-idf) or [Andruino core for esp32](https://github.com/espressif/arduino-esp32)
 
-# serve with hot reload at localhost:9080
-npm run dev
+- Step 2: Build and get signed binary files
 
-# build electron application for production
-npm run build
+- Step 3: Create factory data specific binary file by using command line tools such as [NVS Partition Generator Utility](https://docs.espressif.com/projects/esp-idf/en/latest/api-reference/storage/nvs_partition_gen.html#nvs-partition-generator-utility), [Manufacturing Utility](https://docs.espressif.com/projects/esp-idf/en/latest/api-reference/storage/mass_mfg.html)
 
-# run unit tests
-npm test
+- Step 4: Compress all binaries file into a single zip with `parititions.csv` specify binaries' offsets.
 
-# lint all JS/Vue component files in `src/`
-npm run lint
+- Step 5: > **Flash to ESP32 board by ESP32 Flash Tool**
 
+## Create a single compressed file for ESP32 Flash Tool
+
+ESP32 flash tool uses a single zipped file for flashing, just simply collect all required binaries, and create `partitions.csv` in the same folder then compress all into a zip file.
+
+### Create `partitions.csv` file
+
+ESP32 flash tool uses `partitions.csv` for identifying offsets of binary blobs.
+Simple sample of `partitions.csv` will be:
+
+```CSV
+id,name,offset
+1,bootloader.bin,0x1000
+2,ota_data_initial.bin,0xd000
+3,partitions.bin,0xf000
+4,device-00001.bin,0x10000
+5,app.bin,0x20000
 ```
+
+...
 
 ---
