@@ -1,10 +1,10 @@
 # ESP32 Flash Tool
 
-A desktop application for flashing production ESP32 firmware. Suports multiple platform (Windows, MacOS, Linux)
+A desktop application for flashing production ESP32 firmware. App suports multiple platforms (Windows, MacOS, Linux)
 
 ## Motivation
 
-Simplify settings, fancy UI and focus on mass manufacturing process where development and manufacturing are separated steps.
+Simplify settings, clean UI and focus on mass manufacturing process where development and manufacturing are separated steps.
 
 ## Dependencies install
 
