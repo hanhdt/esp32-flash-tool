@@ -34,7 +34,7 @@ Imagine you have at least 5 steps from firmware development to flashing firmware
 
 - Step 3: Create factory data specific binary file by using command line tools such as [NVS Partition Generator Utility](https://docs.espressif.com/projects/esp-idf/en/latest/api-reference/storage/nvs_partition_gen.html#nvs-partition-generator-utility), [Manufacturing Utility](https://docs.espressif.com/projects/esp-idf/en/latest/api-reference/storage/mass_mfg.html)
 
-- Step 4: Compress all binaries file into a single zip with `parititions.csv` specify binaries' offsets.
+- Step 4: [Compress all binaries file into a single zip with `parititions.csv`](#create-a-single-compressed-file-for-esp32-flash-tool) specify binaries' offsets.
 
 - Step 5: **Flash to ESP32 board by ESP32 Flash Tool**
 
