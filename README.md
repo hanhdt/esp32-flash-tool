@@ -1,6 +1,10 @@
 # ESP32 Flash Tool
 
-A desktop application for flashing production ESP32 firmware with simplify UI and focus on mass manufacturing process.
+A desktop application for flashing production ESP32 firmware. Suports multiple platform (Windows, MacOS, Linux)
+
+## Motivation
+
+Simplify settings, fancy UI and focus on mass manufacturing process where development and manufacturing are separated steps.
 
 ## Dependencies install
 
@@ -32,16 +36,16 @@ Imagine you have at least 5 steps from firmware development to flashing firmware
 
 - Step 4: Compress all binaries file into a single zip with `parititions.csv` specify binaries' offsets.
 
-- Step 5: > **Flash to ESP32 board by ESP32 Flash Tool**
+- Step 5: **Flash to ESP32 board by ESP32 Flash Tool**
 
 ## Create a single compressed file for ESP32 Flash Tool
 
 ESP32 flash tool uses a single zipped file for flashing, just simply collect all required binaries, and create `partitions.csv` in the same folder then compress all into a zip file.
 
-### Create `partitions.csv` file
+## `partitions.csv` file format
 
 ESP32 flash tool uses `partitions.csv` for identifying offsets of binary blobs.
-Simple sample of `partitions.csv` will be:
+Sample of `partitions.csv` will be:
 
 ```CSV
 id,name,offset
@@ -51,7 +55,5 @@ id,name,offset
 4,device-00001.bin,0x10000
 5,app.bin,0x20000
 ```
-
-...
 
 ---
