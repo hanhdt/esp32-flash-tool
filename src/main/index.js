@@ -130,6 +130,7 @@ ipcMain.on('spi-flash-image', (event, flashParams) => {
     appIndex: flashParams.appOffset,
     appBinPath: flashParams.appFile
   }
+
   spiFlashImage(mainWindow, params)
 })
 

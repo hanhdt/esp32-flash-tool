@@ -8,28 +8,23 @@
         <div class="about__content">
           <ul class="about__list list-unstyled">
             <li>{{ $t("contact_headquater_address") }} </li>
-            <li><a href="mailto:contact@aromajoin.com">{{ $t("contact_email") }}</a></li>
+            <li><a href="mailto:tranduchanh.ms@gmail.com">{{ $t("contact_email") }}</a></li>
             <li>{{ $t("contact_tel") }}</li>
           </ul>
           <ul class="about__social list-unstyled">
             <li>
-              <a @click="openExternalLink('https://aromajoin.com')">
-                <img :src="websiteImageUrl" alt="aromajoin-website">
+              <a @click="openExternalLink('https://hanhdt.github.io')">
+                <img :src="websiteImageUrl" alt="hanhdt-website">
               </a>
             </li>
             <li>
-              <a @click="openExternalLink('https://www.facebook.com/aromajoin')">
-                <img :src="facebookImageUrl" alt="facebook">
+              <a @click="openExternalLink('https://github.com/hanhdt')">
+                <img :src="githubImageUrl" alt="hanhdt-github">
               </a>
             </li>
             <li>
-              <a @click="openExternalLink('https://twitter.com/aromajoin')">
-                <img :src="twitterImageUrl" alt="twitter">
-              </a>
-            </li>
-            <li>
-              <a @click="openExternalLink('https://www.instagram.com/aromashooter')">
-                <img :src="instagramImageUrl" alt="instagram">
+              <a @click="openExternalLink('https://www.linkedin.com/in/hanh-d-tran-se/')">
+                <img :src="linkedinImageUrl" alt="hanhdt-linkedin">
               </a>
             </li>
           </ul>
@@ -48,27 +43,21 @@ export default {
   name: 'Setting',
   computed: {
     websiteImageUrl () {
-      let imgPath = path.join(remote.app.getPath('userData'), '/images/',
+      const imgPath = path.join(remote.app.getPath('userData'), '/images/',
         'globe-solid.svg')
-      let base64Image = fs.readFileSync(imgPath, 'base64')
+      const base64Image = fs.readFileSync(imgPath, 'base64')
       return `data:image/svg+xml;base64,${base64Image}`
     },
-    facebookImageUrl () {
-      let imgPath = path.join(remote.app.getPath('userData'), '/images/',
-        'facebook-brands.svg')
-      let base64Image = fs.readFileSync(imgPath, 'base64')
+    githubImageUrl () {
+      const imgPath = path.join(remote.app.getPath('userData'), '/images/',
+        'github-brands.svg')
+      const base64Image = fs.readFileSync(imgPath, 'base64')
       return `data:image/svg+xml;base64,${base64Image}`
     },
-    twitterImageUrl () {
-      let imgPath = path.join(remote.app.getPath('userData'), '/images/',
-        'twitter-brands.svg')
-      let base64Image = fs.readFileSync(imgPath, 'base64')
-      return `data:image/svg+xml;base64,${base64Image}`
-    },
-    instagramImageUrl () {
-      let imgPath = path.join(remote.app.getPath('userData'), '/images/',
-        'instagram-brands.svg')
-      let base64Image = fs.readFileSync(imgPath, 'base64')
+    linkedinImageUrl () {
+      const imgPath = path.join(remote.app.getPath('userData'), '/images/',
+        'linkedin-brands.svg')
+      const base64Image = fs.readFileSync(imgPath, 'base64')
       return `data:image/svg+xml;base64,${base64Image}`
     }
   },
@@ -117,6 +106,7 @@ export default {
       margin-right: 15px;
       a {
         display: block;
+        cursor: pointer;
       }
     }
   }

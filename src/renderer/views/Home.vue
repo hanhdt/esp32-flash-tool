@@ -1,6 +1,10 @@
 <template>
   <div class="home">
     <div class="container">
+      <img
+        :src="backgroundUrl"
+        class="background"
+      />
       <b-card
         class="mb-2"
         bg-variant="dark"
@@ -109,9 +113,11 @@
 
 <script>
 // @ is an alias to /src
-import { ipcRenderer } from 'electron'
+import { ipcRenderer, remote } from 'electron'
 import { mapActions, mapGetters } from 'vuex'
 import uuidv4 from 'uuid/v4'
+import path from 'path'
+import fs from 'fs'
 
 export default {
   name: 'home',
@@ -145,6 +151,13 @@ export default {
       'appName',
       'isReadyFlashing'
     ]),
+    backgroundUrl () {
+      let imgPath = path.join(remote.app.getPath('userData'), '/images/',
+        'esp32-flash-tool.png')
+      let base64Image = fs.readFileSync(imgPath, 'base64')
+
+      return `data:image/png;base64,${base64Image}`
+    },
     deviceOptions () {
       let options = [{ value: null, text: '--- Select ESP32 board ---' }]
       this.connectedDevices.forEach((device) => {
