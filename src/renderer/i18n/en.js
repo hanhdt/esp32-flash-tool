@@ -15,7 +15,7 @@ const EN = {
   contact_title: 'Contact me!',
   contact_headquater_address: 'Fushimi-ku, Kyoto 612-8331 Japan',
   contact_email: 'Email: tranduchanh.ms@gmail.com',
-  contact_tel: 'Tel: +81-80-6675-8773',
+  contact_document: 'App Documentation',
   contact_app_version: 'Version'
 }
 

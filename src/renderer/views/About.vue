@@ -7,8 +7,20 @@
         </h1>
         <div class="about__content">
           <ul class="about__list list-unstyled">
-            <li>{{ $t("contact_headquater_address") }} </li>
-            <li><a href="mailto:tranduchanh.ms@gmail.com">{{ $t("contact_email") }}</a></li>
+            <li>
+              {{ $t("contact_headquater_address") }}
+            </li>
+            <li>
+              {{ $t("contact_email") }}
+            </li>
+            <li>
+              <a
+                href="#"
+                @click="openExternalLink('https://github.com/hanhdt/esp32-flash-tool')"
+              >
+                {{ $t("contact_document") }}
+              </a>
+            </li>
           </ul>
           <ul class="about__social list-unstyled">
             <li>
@@ -39,7 +51,7 @@ import path from 'path'
 import fs from 'fs'
 
 export default {
-  name: 'Setting',
+  name: 'About',
   computed: {
     websiteImageUrl () {
       const imgPath = path.join(remote.app.getPath('userData'), '/images/',

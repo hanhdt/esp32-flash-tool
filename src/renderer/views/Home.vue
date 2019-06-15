@@ -10,102 +10,101 @@
         bg-variant="none"
         border-variant="none"
       >
-        <b-card-body>
-          <b-form>
-            <!-- Select compressed firmware image -->
-            <b-form-group
-              label="Select zipped file"
-            >
-              <div class="fwimage__select">
-                <b-form-file
-                  v-model="selectedSingleFirmwareFile"
-                  :state="Boolean(selectedSingleFirmwareFile)"
-                  placeholder="Choose a compressed .zip file"
-                  drop-placeholder="Drop zipped file here..."
-                  accept="application/zip, application/x-tar, application/x-7z-compressed,
-                    application/x-bzip, application/x-bzip2, application/x-rar-compressed"
-                ></b-form-file>
-              </div>       
-            </b-form-group>
+        <b-form>
+          <!-- Select compressed firmware image -->
+          <b-form-group
+            label="Firmware file"
+            class="mb-3"
+          >
+            <div class="fwimage__select">
+              <b-form-file
+                v-model="selectedSingleFirmwareFile"
+                :state="Boolean(selectedSingleFirmwareFile)"
+                placeholder="Choose a compressed .zip file"
+                drop-placeholder="Drop zipped file here..."
+                accept="application/zip, application/x-tar, application/x-7z-compressed,
+                  application/x-bzip, application/x-bzip2, application/x-rar-compressed"
+              ></b-form-file>
+            </div>       
+          </b-form-group>
 
-            <!-- Select ESP32 board -->
-            <b-form-group
-              label="ESP32 board"
-              label-for="serialPortInput"
-            >
-              <div class="devices__select">
-                <b-form-select
-                  id="serialPortInput"
-                  v-model="selectedSerialPort"
-                  :options="deviceOptions"
-                />
-              </div>
-            </b-form-group>
-
-            <!-- Flash! -->
-            <div class="mt-4 d-flex justify-content-end">
-              <b-button
-                v-b-toggle.collapse-progress
-                v-b-tooltip.hover
-                title="FLASH!"
-                variant="success"
-                size="sm"
-                @click.prevent="onFlashingSubmit"
-                :disabled="inProgress || !isReadyFlashing"
-              >
-                <i class="material-icons">flash_on</i>
-              </b-button>
+          <!-- Select ESP32 board -->
+          <b-form-group
+            label="ESP32 board"
+            label-for="serialPortInput"
+          >
+            <div class="devices__select">
+              <b-form-select
+                id="serialPortInput"
+                v-model="selectedSerialPort"
+                :options="deviceOptions"
+              />
             </div>
+          </b-form-group>
 
-            <!-- Progress details -->
-            <b-collapse
-              id="collapse-progress"
-              class="mt-3"
+          <!-- Flash! -->
+          <div class="mt-4 d-flex justify-content-end">
+            <b-button
+              v-b-toggle.collapse-progress
+              v-b-tooltip.hover
+              title="FLASH!"
+              variant="success"
+              size="sm"
+              @click.prevent="onFlashingSubmit"
+              :disabled="inProgress || !isReadyFlashing"
             >
-              <b-card
-                class="mt-3"
-                bg-variant="dark"
+              <i class="material-icons">flash_on</i>
+            </b-button>
+          </div>
+
+          <!-- Progress details -->
+          <b-collapse
+            id="collapse-progress"
+            class="mt-3"
+          >
+            <b-card
+              class="mt-3"
+              bg-variant="dark"
+            >
+              <p 
+                class="card-text"
+                v-if="inProgress && flashingStatus === 0"
               >
-                <p 
-                  class="card-text"
-                  v-if="inProgress && flashingStatus === 0"
-                >
-                  <b-spinner
-                    variant="success"
-                    label="Spinning"
-                    small>
-                  </b-spinner>
-                  Writing firmware into the board...
-                </p>
-                <p
-                  class="card-text"
-                  v-else-if="!inProgress && flashingStatus === 1"
-                >
-                  <i class="material-icons">
-                    flash_off
-                  </i>
-                  <strong>Flashing is not completed!</strong>
-                </p>
-                <p
-                  class="card-text"
-                  v-else
-                > 
-                  <i class="material-icons">
-                    check_circle
-                  </i>
-                  <strong>Flashing is finished!</strong>
-                </p>
-                <b-card-text>
-                  <em 
-                    v-for="message in this.progressMessages"
-                    :key="message.id">
-                    {{ message.data | addStringNewLine }}<br/>
-                  </em>
-                </b-card-text>
-              </b-card>
-            </b-collapse>
-          </b-form>
-        </b-card-body>
+                <b-spinner
+                  variant="success"
+                  label="Spinning"
+                  small>
+                </b-spinner>
+                Writing firmware into the board...
+              </p>
+              <p
+                class="card-text"
+                v-else-if="!inProgress && flashingStatus === 1"
+              >
+                <i class="material-icons">
+                  flash_off
+                </i>
+                <strong>Flashing is not completed!</strong>
+              </p>
+              <p
+                class="card-text"
+                v-else
+              > 
+                <i class="material-icons">
+                  check_circle
+                </i>
+                <strong>Flashing is finished!</strong>
+              </p>
+              <b-card-text>
+                <em 
+                  v-for="message in this.progressMessages"
+                  :key="message.id">
+                  {{ message.data | addStringNewLine }}<br/>
+                </em>
+              </b-card-text>
+            </b-card>
+          </b-collapse>
+        </b-form>
       </b-card>
     </div>
   </div>

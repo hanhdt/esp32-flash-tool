@@ -9,13 +9,13 @@
       </i>
     </b-link>
 
-    <!-- Setting -->
+    <!-- About -->
     <router-link
-      v-if="$route.name !== 'setting'"
-      to="/setting"
-      :class="$route.name === 'setting' ? 'active' : ''"
+      v-if="$route.name !== 'about'"
+      to="/about"
+      :class="$route.name === 'about' ? 'active' : ''"
     >
-      <img :src="settingImageUrl" alt="">
+      <img :src="aboutImageUrl" alt="">
     </router-link>
     <router-link
       v-else
@@ -36,7 +36,7 @@ import fs from 'fs'
 export default {
   name: 'AppNav',
   computed: {
-    settingImageUrl () {
+    aboutImageUrl () {
       const imgPath = path.join(remote.app.getPath('userData'), '/images/',
         'settings.svg')
       const base64Image = fs.readFileSync(imgPath, 'base64')
@@ -53,7 +53,6 @@ export default {
 
 <style lang="scss" scoped>
 .aroma__nav {
-  background: #333;
   display: flex;
   justify-content: space-between;
   align-items: center;
@@ -80,7 +79,6 @@ export default {
 }
 .light-theme {
   .aroma__nav {
-    background: #F0F4F8;
     a {
       color: #333;
       &:after {
@@ -91,7 +89,6 @@ export default {
 }
 .dark-theme {
   .aroma__nav {
-    background: #343a40;
      a {
       color: #fff;
       img {

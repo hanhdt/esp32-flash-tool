@@ -17,6 +17,7 @@ const JA = {
   contact_headquater_address: '京都市伏見区',
   contact_email: 'Email: tranduchanh.ms@gmail.com',
   contact_tel: 'Tel: 080-6675-8773',
+  contact_document: 'Documentation',
   contact_app_version: 'バージョン'
 }
 

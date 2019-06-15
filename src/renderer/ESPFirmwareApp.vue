@@ -80,6 +80,11 @@ body {
 }
 
 .light-theme {
+  background: url('~@/assets/images/background.png'); 
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center; 
+  background-size: cover;
   background-color: $light!important;
   color: $dark!important;
   min-height: 100%;
@@ -115,11 +120,11 @@ body {
 
 .dark-theme {
   background: url('~@/assets/images/background.png'); 
-  background-color: $dark!important;
   background-repeat: no-repeat;
   background-attachment: fixed;
   background-position: center; 
   background-size: cover;
+  background-color: $dark!important;
   color: $light!important;
   min-height: 100%;
   position: relative;
