@@ -75,6 +75,8 @@ html {
 body {
   min-width: 320px;
   min-height: 100%;
+  @extend %typography-medium;
+  text-shadow: 0 1px 1px rgba(0, 0, 0, 0.2);
 }
 
 .light-theme {
@@ -112,7 +114,12 @@ body {
 }
 
 .dark-theme {
+  background: url('~@/assets/images/background.png'); 
   background-color: $dark!important;
+  background-repeat: no-repeat;
+  background-attachment: fixed;
+  background-position: center; 
+  background-size: cover;
   color: $light!important;
   min-height: 100%;
   position: relative;

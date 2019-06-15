@@ -13,6 +13,17 @@ function defaultAppLogo () {
     path.join(uploadDir, 'esp32-flash-tool.png'))
 }
 
+// function defaultBackground () {
+//   const uploadDir = path.join(app.getPath('userData'), '/images/')
+//   // create folder if not existed!
+//   if (!fs.existsSync(uploadDir)) {
+//     fs.mkdirSync(uploadDir)
+//   }
+
+//   fs.copyFileSync(path.join(__static, '/images/', 'background.png'),
+//     path.join(uploadDir, 'background.png'))
+// }
+
 function defaultHeaderIcons () {
   const uploadDir = path.join(app.getPath('userData'), '/images/')
   if (!fs.existsSync(uploadDir)) { // create folder if not existed!

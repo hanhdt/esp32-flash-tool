@@ -9,7 +9,6 @@
           <ul class="about__list list-unstyled">
             <li>{{ $t("contact_headquater_address") }} </li>
             <li><a href="mailto:tranduchanh.ms@gmail.com">{{ $t("contact_email") }}</a></li>
-            <li>{{ $t("contact_tel") }}</li>
           </ul>
           <ul class="about__social list-unstyled">
             <li>
@@ -76,17 +75,16 @@ export default {
   padding-bottom: 100px;
   display: flex;
   align-items: flex-start;
-  justify-content: center;
   transition: padding .25s;
-  background-position: center;
-  background-repeat: no-repeat;
-  background-size: cover;
+  font-size: 18px;
+  font-weight: 400;
   @media (max-width: 991px) {
     align-items: flex-start;
     padding-top: 100px;
   }
   .about__group {
     margin-bottom: 30px;
+    text-align: center;
   }
   .about__name {
     font-size: 20px;

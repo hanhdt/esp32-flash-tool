@@ -1,9 +1,44 @@
-$system-default-font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI',
+@font-face {
+  font-family: 'Avenir';
+  font-weight: 300;
+  src: local('Avenir-Light'),
+       url('~@/assets/fonts/Avenir-Light.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Avenir';
+  font-weight: 400;
+  src: local('Avenir-Book'),
+       url('~@/assets/fonts/Avenir-Book.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Avenir';
+  font-weight: 500;
+  src: local('Avenir-Roman'),
+       url('~@/assets/fonts/Avenir-Roman.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Avenir';
+  font-weight: 500;
+  src: local('Avenir-Medium'),
+       url('~@/assets/fonts/Avenir-Medium.woff') format('woff');
+}
+
+@font-face {
+  font-family: 'Avenir';
+  font-weight: 900;
+  src: local('Avenir-Heavy'),
+       url('~@/assets/fonts/Avenir-Heavy.woff') format('woff');
+}
+
+$system-default-font-family: 'Avenir', -apple-system, BlinkMacSystemFont, 'Segoe UI',
   Helvetica, Arial, sans-serif, 'Apple Color Emoji', 'Segoe UI Emoji',
   'Segoe UI Symbol';
 
 $heading-font-family: $system-default-font-family;
-$heading-font-weight: 600;
+$heading-font-weight: 900;
 
 $content-font-family: $system-default-font-family;
 $content-font-weight: 400;

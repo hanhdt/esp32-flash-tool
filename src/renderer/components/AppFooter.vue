@@ -22,21 +22,26 @@ export default {
 </script>
 
 <style lang="scss" scoped>
+@import '@/design/index.scss';
+
 .footer-site {
   padding: 10px 0;
-}
-.copy-right {
-  font-size: 11px;
-  letter-spacing: 1px;
-  font-weight: 600;
-  span {
-    text-decoration: underline;
-    text-decoration-style: dotted;
-    text-decoration-color: #F0F4F8;
-    float: right;
-    margin-right: 10px;
+  .copy-right {
+    font-size: 11px;
+    letter-spacing: 1px;
+    font-weight: 600;
+    color: $color-button-text;
+    span {
+      text-decoration: underline;
+      text-decoration-style: dotted;
+      text-decoration-color: $color-button-text;
+      float: right;
+      margin-right: 10px;
+    }
   }
+  @extend %typography-small;
 }
+
 .light-theme {
   .footer-site {
     background: #F0F4F8;

@@ -2,13 +2,13 @@
   <div class="home">
     <div class="container">
       <img
-        :src="backgroundUrl"
+        :src="appLogoUrl"
         class="background"
       />
       <b-card
         class="mb-2"
-        bg-variant="dark"
-        border-variant="dark"
+        bg-variant="none"
+        border-variant="none"
       >
         <b-card-body>
           <b-form>
@@ -151,7 +151,7 @@ export default {
       'appName',
       'isReadyFlashing'
     ]),
-    backgroundUrl () {
+    appLogoUrl () {
       let imgPath = path.join(remote.app.getPath('userData'), '/images/',
         'esp32-flash-tool.png')
       let base64Image = fs.readFileSync(imgPath, 'base64')
@@ -311,6 +311,10 @@ export default {
       min-width: 250px;
       display: flex;
       flex-flow: column;
+    }
+    .card {
+      background-color: transparent;
+      border: none;
     }
     form {
       button {
