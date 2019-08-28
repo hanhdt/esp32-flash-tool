@@ -27,7 +27,7 @@
     "bootstrap-vue": "^2.0.0-rc.28",
     "csv-parser": "^2.3.0",
     "jquery": "^3.4.1",
-    "lodash": "^4.17.13",
+    "lodash": "^4.17.15",
     "node-uuid": "^1.4.8",
     "normalize.css": "^8.0.1",
     "python-shell": "^1.0.7",
