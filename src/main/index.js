@@ -40,8 +40,8 @@ function createWindow () {
    * Initial window options
    */
   mainWindow = new BrowserWindow({
-    height: 550,
-    width: 920,
+    height: 620,
+    width: 980,
     show: false,
     resizable: false,
     center: true,
