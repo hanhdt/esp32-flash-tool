@@ -31,9 +31,11 @@ export default function spiFlashImage (mainWindow, params) {
   const pyShell = new PythonShell('esptool.py', options)
 
   pyShell.on('message', (message) => {
-    // console.log('message: %j', message)
-    const msg = { id: uuidv4(), data: message }
-    mainWindow.webContents.send('flashing-progress-updated', msg)
+    const messageArray = message.split('\r')
+    messageArray.forEach((messageItem) => {
+      const msg = { id: uuidv4(), data: messageItem }
+      mainWindow.webContents.send('flashing-progress-updated', msg)
+    })
   })
 
   pyShell.end((err, code, signal) => {

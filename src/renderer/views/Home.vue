@@ -96,9 +96,14 @@
                 <strong>Flashing is finished!</strong>
               </p>
               <b-card-text>
+                <em v-show="this.progressMessages.length > 1">
+                  Details:
+                </em>
+                <br>
                 <em 
                   v-for="message in this.progressMessages"
-                  :key="message.id">
+                  :key="message.id"
+                >
                   {{ message.data | addStringNewLine }}<br/>
                 </em>
               </b-card-text>
