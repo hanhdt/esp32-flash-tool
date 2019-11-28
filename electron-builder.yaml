@@ -1,7 +1,10 @@
 directories:
   output: release
 appId: com.hanhdt.esp.flashtool
-asar: false
+asar: true
+asarUnpack:
+  - dist/electron/static/esptool/**/*
+
 productName: ESP32FlashTool
 files:
   - dist/electron/**/*

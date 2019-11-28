@@ -3,7 +3,7 @@ import path from 'path'
 const uuidv4 = require('uuid/v4')
 
 export default function spiFlashImage (mainWindow, params) {
-  const esptoolPath = path.join(__static, '/esptool/')
+  const esptoolPath = path.join(app.getAppPath(), 'dist/electron/static/esptool/').replace('app.asar', 'app.asar.unpacked')
 
   const options = {
     mode: 'text',
