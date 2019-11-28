@@ -9,6 +9,7 @@
   "license": "Apache-2.0",
   "main": "./dist/electron/main.js",
   "scripts": {
+    "install": "electron-rebuild",
     "build": "node .electron-vue/build.js && electron-builder",
     "build:dir": "node .electron-vue/build.js && electron-builder --dir",
     "build:clean": "cross-env BUILD_TARGET=clean node .electron-vue/build.js",
@@ -21,7 +22,7 @@
     "pack:renderer": "cross-env NODE_ENV=production webpack --progress --colors --config .electron-vue/webpack.renderer.config.js",
     "test": "npm run unit",
     "unit": "karma start test/unit/karma.conf.js",
-    "postinstall": "npm run lint:fix"
+    "postinstall": "electron-builder install-app-deps"
   },
   "dependencies": {
     "bootstrap-vue": "^2.1.0",
@@ -64,6 +65,7 @@
     "electron-builder": "^21.2.0",
     "electron-debug": "^3.0.1",
     "electron-devtools-installer": "^2.2.4",
+    "electron-rebuild": "^1.8.8",
     "eslint": "^6.7.1",
     "eslint-config-standard": "^11.0.0",
     "eslint-friendly-formatter": "^4.0.1",
