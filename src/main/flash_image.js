@@ -1,4 +1,5 @@
 import { PythonShell } from 'python-shell'
+import { app } from 'electron'
 import path from 'path'
 const uuidv4 = require('uuid/v4')
 

@@ -12,13 +12,11 @@ files:
 # Mac OS configuration
 mac:
   category: public.app-category.utilities
-  entitlements: build/entitlements.mac.plist
   icon: static/icons/icon.icns
   target:
     - pkg
     - dmg
     - zip
-    # - mas
 
 # Mac OS AppStore configuration
 # mas:

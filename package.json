@@ -26,6 +26,7 @@
   "dependencies": {
     "bootstrap-vue": "^2.1.0",
     "csv-parser": "^2.3.2",
+    "date-fns": "^2.8.1",
     "jquery": "^3.4.1",
     "lodash": "^4.17.15",
     "node-uuid": "^1.4.8",
