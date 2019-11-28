@@ -2,7 +2,7 @@
   <!-- FOOTER -->
   <footer class="footer-site fixed-bottom">
     <div class="copy-right text-center">
-      © 2019 Developed with ❤️ by Hanh D. TRAN
+      © 2019 Developed with ❤️ by Hanh DT
       <span>{{ appVersion }}</span>
     </div>
   </footer>
