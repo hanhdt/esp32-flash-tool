@@ -1,6 +1,7 @@
 directories:
   output: release
 appId: com.hanhdt.esp.flashtool
+copyright: "Copyright © 2020 Hanh D. TRAN"
 asar: true
 asarUnpack:
   - dist/electron/static/esptool/**/*

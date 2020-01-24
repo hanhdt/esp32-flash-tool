@@ -40,7 +40,7 @@ function createWindow () {
    * Initial window options
    */
   mainWindow = new BrowserWindow({
-    height: 620,
+    height: 680,
     width: 980,
     show: false,
     resizable: false,
@@ -110,15 +110,15 @@ ipcMain.on('reset-settings', (event) => {
 // Fired when button flash! is clicked
 ipcMain.on('spi-flash-image', (event, flashParams) => {
   const params = {
-    before: 'default_reset',
-    after: 'hard_reset',
-    chip: 'esp32',
+    before: flashParams.beforeFlash,
+    after: flashParams.afterFlash,
+    chip: flashParams.chip,
     port: flashParams.serialPort,
-    baudRate: 115200,
-    flashMode: 'dio',
+    baudRate: flashParams.baudRate,
+    flashMode: flashParams.flashMode,
+    flashFreq: flashParams.flashFreq,
+    flashSize: flashParams.flashSize,
     compress: '-z',
-    flashFreq: '80m',
-    flashSize: '8MB',
     bootloaderIndex: flashParams.bootLoaderOffset,
     bootloaderBin: flashParams.bootLoaderFile,
     initialOTAIndex: flashParams.initialOTADataOffset,

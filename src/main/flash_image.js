@@ -4,13 +4,18 @@ import path from 'path'
 const uuidv4 = require('uuid/v4')
 
 export default function spiFlashImage (mainWindow, params) {
-  const esptoolPath = path.join(app.getAppPath(), 'dist/electron/static/esptool/').replace('app.asar', 'app.asar.unpacked')
+  let espToolPath = ''
+  if (process.env.NODE_ENV === 'production') {
+    espToolPath = path.join(app.getAppPath(), 'dist/electron/static/esptool/').replace('app.asar', 'app.asar.unpacked')
+  } else {
+    espToolPath = path.join(__static, 'esptool/')
+  }
 
   const options = {
     mode: 'text',
     pythonPath: 'python',
     pythonOptions: ['-u'], // get print results in real-time
-    scriptPath: esptoolPath,
+    scriptPath: espToolPath,
     args: [
       '--chip', params.chip,
       '--port', params.port,

@@ -33,7 +33,8 @@ export default {
   methods: {
     ...mapActions([
       'updateAppTheme',
-      'addConnectedDevice'
+      'addConnectedDevice',
+      'resetConnectedDevices'
     ]),
     restoreAppPerferences () {
       if (localStorage.getItem('appTheme')) {
@@ -47,10 +48,13 @@ export default {
     },
     listenScanningPorts () {
       ipcRenderer.on('ports-scanned', (event, ports) => {
-        // console.log('Connected devices:', ports)
-        ports.forEach((device) => {
-          this.addConnectedDevice(device)
-        })
+        if (ports && ports.length > 0) {
+          ports.forEach((device) => {
+            this.addConnectedDevice(device)
+          })
+        } else {
+          this.resetConnectedDevices()
+        }
       })
     }
   }

@@ -11,9 +11,16 @@ function isEmptyString (value) {
 
 export default new Vuex.Store({
   state: {
+    chip: 'esp32',
+    flashMode: 'dio',
+    flashFreq: '80m',
+    flashSize: '4MB',
+    baudRate: 460800,
+    beforeFlash: 'default_reset',
+    afterFlash: 'hard_reset',
     inProgress: false,
     appTheme: 'dark-theme',
-    locale: 'ja',
+    locale: 'en',
     serialPort: null,
     bootLoaderName: '',
     bootLoaderFile: null,
@@ -37,6 +44,27 @@ export default new Vuex.Store({
     singleFirmwareFile: null
   },
   getters: {
+    chip (state) {
+      return state.chip
+    },
+    flashMode (state) {
+      return state.flashMode
+    },
+    flashFreq (state) {
+      return state.flashFreq
+    },
+    flashSize (state) {
+      return state.flashSize
+    },
+    baudRate (state) {
+      return state.baudRate
+    },
+    beforeFlash (state) {
+      return state.beforeFlash
+    },
+    afterFlash (state) {
+      return state.afterFlash
+    },
     inProgress (state) {
       return state.inProgress
     },
@@ -117,6 +145,21 @@ export default new Vuex.Store({
     }
   },
   mutations: {
+    setChip (state, chip) {
+      state.chip = chip
+    },
+    setFlashMode (state, flashMode) {
+      state.flashMode = flashMode
+    },
+    setFlashFreq (state, flashFreq) {
+      state.flashFreq = flashFreq
+    },
+    setFlashSize (state, flashSize) {
+      state.flashSize = flashSize
+    },
+    setBaudRate (state, rate) {
+      state.baudRate = rate
+    },
     inProgress (state, status) {
       state.inProgress = status
     },
@@ -216,6 +259,21 @@ export default new Vuex.Store({
     }
   },
   actions: {
+    updateChip ({ commit }, chip) {
+      commit('setChip', chip)
+    },
+    updateFlashMode ({ commit }, mode) {
+      commit('setFlashMode', mode)
+    },
+    updateFlashFreq ({ commit }, freq) {
+      commit('setFlashFreq', freq)
+    },
+    updateFlashSize ({ commit }, size) {
+      commit('setFlashSize', size)
+    },
+    updateBaudRate ({ commit }, rate) {
+      commit('setBaudRate', rate)
+    },
     updateInProgress ({ commit }, status) {
       commit('inProgress', status)
     },

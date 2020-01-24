@@ -5,7 +5,7 @@ const yauzl = require('yauzl')
 const csv = require('csv-parser')
 
 function processParitionsFile (mainWindow, zipParams, path) {
-  // Process parititions
+  // Process partitions
   fs.createReadStream(path)
     .pipe(csv())
     .on('data', (row) => {
