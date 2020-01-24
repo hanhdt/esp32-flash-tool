@@ -59,61 +59,63 @@
             </div>
 
             <!-- Progress details -->
-            <b-collapse
+            <div
               id="collapse-progress"
-              class="mt-3"
+              class="row"
               visible
             >
-              <b-card
-                class="mt-3"
-                bg-variant="dark"
-              >
-                <div>
-                  <b-spinner
-                    v-if="inProgress && flashingStatus === 0"
-                    variant="success"
-                    label="Spinning"
-                    small
-                  >
-                  </b-spinner>
-                  <i
-                    v-else-if="!inProgress && flashingStatus === 1"
-                    class="material-icons"
-                  >
-                    flash_off
-                  </i>
-                  <i
-                    v-else
-                    class="material-icons"
-                  >
-                    check_circle
-                  </i>
-                  <p class="card-text">
-                    {{ flashingStatusLabel }}
-                  </p>
-                </div>
-                <b-card-text class="overflow-auto">
-                  <em class="text-nowrap">
-                    Runtime: {{ this.runtime }}.
-                  </em>
-                  <em
-                    v-show="this.progressMessages.length > 1"
-                    class="text-muted"
-                    style="font-size: 1rem;"
-                  >
-                    =================================================
-                  </em>
-                  <br>
-                  <em 
-                    v-for="message in this.progressMessages"
-                    :key="message.id"
-                    class="font-weight-light text-logging"
-                  >
-                    {{ message.data | addStringNewLine }}<br/>
-                  </em>
-                </b-card-text>
-              </b-card>
-            </b-collapse>
+              <div class="col">
+                <b-card
+                  class="mt-3"
+                  bg-variant="dark"
+                >
+                  <div>
+                    <b-spinner
+                      v-if="inProgress && flashingStatus === 0"
+                      variant="success"
+                      label="Spinning"
+                      small
+                    >
+                    </b-spinner>
+                    <i
+                      v-else-if="!inProgress && flashingStatus === 1"
+                      class="material-icons"
+                    >
+                      flash_off
+                    </i>
+                    <i
+                      v-else
+                      class="material-icons"
+                    >
+                      check_circle
+                    </i>
+                    <p class="card-text">
+                      {{ flashingStatusLabel }}
+                    </p>
+                  </div>
+                  <b-card-text class="overflow-auto">
+                    <em class="text-nowrap">
+                      Runtime: {{ this.runtime }}.
+                    </em>
+                    <em
+                      v-show="this.progressMessages.length > 1"
+                      class="text-muted"
+                      style="font-size: 1rem;"
+                    >
+                      =================================================
+                    </em>
+                    <br>
+                    <em 
+                      v-for="message in this.progressMessages"
+                      :key="message.id"
+                      class="font-weight-light text-logging"
+                    >
+                      {{ message.data | addStringNewLine }}<br/>
+                    </em>
+                  </b-card-text>
+                </b-card>
+              </div>
+            </div>
           </b-form>
         </b-card-body>
       </b-card>
@@ -311,14 +313,14 @@ export default {
             this.updatePartitionsTableOffset(offset)
             break
           case 4:
-            this.updateFactorySerialName(filename)
-            this.updateFactorySerialFile(dest)
-            this.updateFactorySerialOffset(offset)
-            break
-          case 5:
             this.updateAppName(filename)
             this.updateAppFile(dest)
             this.updateAppOffset(offset)
+            break
+          case 5:
+            this.updateFactorySerialName(filename)
+            this.updateFactorySerialFile(dest)
+            this.updateFactorySerialOffset(offset)
             break
           default:
             break
@@ -346,7 +348,7 @@ export default {
       padding-top: 50px;
     }
     .background {
-      max-height: 110px;
+      max-height: 90px;
       margin-left: auto;
       margin-right: auto;
       display: block;
@@ -368,7 +370,7 @@ export default {
         min-width: 92px;
       }
       .card-text {
-        max-height: 125px;
+        max-height: 120px;
         strong {
           vertical-align: super;
           padding-left: 5px;

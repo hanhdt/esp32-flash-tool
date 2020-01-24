@@ -4,7 +4,7 @@ import path from 'path'
 const yauzl = require('yauzl')
 const csv = require('csv-parser')
 
-function processParitionsFile (mainWindow, zipParams, path) {
+function processPartitionsFile (mainWindow, zipParams, path) {
   // Process partitions
   fs.createReadStream(path)
     .pipe(csv())
@@ -36,9 +36,10 @@ function saveFile (mainWindow, zipParams, fileName, readStream) {
   readStream.pipe(file)
   readStream.on('end', () => {
     if (fileName === 'partitions.csv') {
-      processParitionsFile(mainWindow, zipParams, dest)
+      processPartitionsFile(mainWindow, zipParams, dest)
     } else {
-      mainWindow.webContents.send('bin-file-unzipped', parseInt(zipParams.index), zipParams.offset, fileName, dest)
+      mainWindow.webContents.send('bin-file-unzipped',
+        parseInt(zipParams.index), zipParams.offset, fileName, dest)
     }
   })
 }

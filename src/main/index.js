@@ -124,11 +124,11 @@ ipcMain.on('spi-flash-image', (event, flashParams) => {
     initialOTAIndex: flashParams.initialOTADataOffset,
     initialOTADataBin: flashParams.initialOTADataFile,
     partitionsTableIndex: flashParams.partitionsTableOffset,
-    partitionsBinPath: flashParams.partitionsTableFile,
+    partitionsBin: flashParams.partitionsTableFile,
     factorySerialIndex: flashParams.factorySerialOffset,
     factorySerialBin: flashParams.factorySerialFile,
     appIndex: flashParams.appOffset,
-    appBinPath: flashParams.appFile
+    appBin: flashParams.appFile
   }
 
   spiFlashImage(mainWindow, params)
