@@ -39,6 +39,9 @@ serialport = None
 trace_enabled = False
 
 try:
+    if sys.argv[1] == "--trace":
+        trace_enabled = True
+        sys.argv.pop(1)
     chip = sys.argv[2]
 except IndexError:
     chip = None  # fails in main()
@@ -456,33 +459,36 @@ class TestReadIdentityValues(EsptoolTestCase):
 
 class TestKeepImageSettings(EsptoolTestCase):
     """ Tests for the -fm keep, -ff keep options for write_flash """
-    HEADER_ONLY = "images/image_header_only.bin"  # 8 byte file, contains image header
+    if chip == "esp8266":
+        BL_IMAGE = "images/esp8266_sdk/boot_v1.4(b1).bin"
+    elif chip == "esp32":
+        BL_IMAGE = "images/bootloader.bin"
+
     def setUp(self):
         super(TestKeepImageSettings, self).setUp()
         self.flash_offset = 0x1000 if chip == "esp32" else 0  # bootloader offset
-        with open(self.HEADER_ONLY, "rb") as f:
+        with open(self.BL_IMAGE, "rb") as f:
             self.header = f.read(8)
 
     def test_keep_does_not_change_settings(self):
-        # defaults should be keep, except for flash size which has to match header
-        flash_size = "1MB" if chip == "esp32" else "512KB"  # hex 0
-        self.run_esptool("write_flash -fs %s 0x%x %s" % (flash_size, self.flash_offset, self.HEADER_ONLY))
-        self.verify_readback(self.flash_offset, 8, self.HEADER_ONLY, False)
-        # can also explicitly set these options
-        self.run_esptool("write_flash -fm keep -ff keep -fs %s 0x%x %s" % (flash_size, self.flash_offset, self.HEADER_ONLY))
-        self.verify_readback(self.flash_offset, 8, self.HEADER_ONLY, False)
+        # defaults should all be keep
+        self.run_esptool("write_flash -fs keep 0x%x %s" % (self.flash_offset, self.BL_IMAGE))
+        self.verify_readback(self.flash_offset, 8, self.BL_IMAGE, False)
+        # can also explicitly set all options
+        self.run_esptool("write_flash -fm keep -ff keep -fs keep 0x%x %s" % (self.flash_offset, self.BL_IMAGE))
+        self.verify_readback(self.flash_offset, 8, self.BL_IMAGE, False)
         # verify_flash should also use 'keep'
-        self.run_esptool("verify_flash -fs %s 0x%x %s" % (flash_size, self.flash_offset, self.HEADER_ONLY))
+        self.run_esptool("verify_flash -fs keep 0x%x %s" % (self.flash_offset, self.BL_IMAGE))
 
     def test_detect_size_changes_size(self):
-        self.run_esptool("write_flash 0x%x %s" % (self.flash_offset, self.HEADER_ONLY))
+        self.run_esptool("write_flash 0x%x %s" % (self.flash_offset, self.BL_IMAGE))
         readback = self.readback(self.flash_offset, 8)
         self.assertEqual(self.header[:3], readback[:3])  # first 3 bytes unchanged
         self.assertNotEqual(self.header[3], readback[3]) # size_freq byte changed
         self.assertEqual(self.header[4:], readback[4:]) # rest unchanged
 
     def test_explicit_set_size_freq_mode(self):
-        self.run_esptool("write_flash -fs 2MB -fm qio -ff 80m 0x%x %s" % (self.flash_offset, self.HEADER_ONLY))
+        self.run_esptool("write_flash -fs 2MB -fm qio -ff 80m 0x%x %s" % (self.flash_offset, self.BL_IMAGE))
 
         def val(x):
             try:
@@ -495,13 +501,12 @@ class TestKeepImageSettings(EsptoolTestCase):
         self.assertEqual(self.header[0], readback[0])
         self.assertEqual(self.header[1], readback[1])
         self.assertEqual(0, val(readback[2]))  # qio mode
-        self.assertNotEqual(0, val(self.header[2]))
         self.assertEqual(0x1f if chip == "esp32" else 0x3f, val(readback[3]))  # size_freq
         self.assertNotEqual(self.header[3], readback[3])
         self.assertEqual(self.header[4:], readback[4:])
         # verify_flash should pass if we match params, fail otherwise
-        self.run_esptool("verify_flash -fs 2MB -fm qio -ff 80m 0x%x %s" % (self.flash_offset, self.HEADER_ONLY))
-        self.run_esptool_error("verify_flash 0x%x %s" % (self.flash_offset, self.HEADER_ONLY))
+        self.run_esptool("verify_flash -fs 2MB -fm qio -ff 80m 0x%x %s" % (self.flash_offset, self.BL_IMAGE))
+        self.run_esptool_error("verify_flash 0x%x %s" % (self.flash_offset, self.BL_IMAGE))
 
 
 class TestLoadRAM(EsptoolTestCase):
@@ -540,14 +545,31 @@ class TestDeepSleepFlash(EsptoolTestCase):
         self.run_esptool("write_flash 0x0 images/fifty_kb.bin", baud=230400)
         self.verify_readback(0, 50*1024, "images/fifty_kb.bin")
 
+class TestBootloaderHeaderRewriteCases(EsptoolTestCase):
+    BL_OFFSET = 0x0 if chip == "esp8266" else 0x1000
+
+    def test_flash_header_rewrite(self):
+        if chip == "esp8266":
+            bl_image = "images/esp8266_sdk/boot_v1.4(b1).bin"
+        elif chip == "esp32":
+            bl_image = "images/bootloader.bin"
+
+        output = self.run_esptool("write_flash -fm dout -ff 20m 0x%x %s" % (self.BL_OFFSET, bl_image))
+        self.assertIn("Flash params set to", output)
+
+    def test_flash_header_no_magic_no_rewrite(self):
+        # first image doesn't start with magic byte, second image does
+        # but neither are valid bootloader binary images for either chip
+        for image in [ "images/one_kb.bin", "images/one_kb_all_ef.bin" ]:
+            output = self.run_esptool("write_flash -fm dout -ff 20m 0x%x %s" % (self.BL_OFFSET, image))
+            self.assertIn("not changing any flash settings", output)
+            self.verify_readback(self.BL_OFFSET, 1024, image)
+
 
 if __name__ == '__main__':
     if len(sys.argv) < 3:
         print("Usage: %s [--trace] <serial port> <chip name> [optional default baud rate] [optional tests]" % sys.argv[0])
         sys.exit(1)
-    if sys.argv[1] == "--trace":
-        trace_enabled = True
-        sys.argv.pop(1)
     serialport = sys.argv[1]
     # chip is already set to sys.argv[2], so @skipUnless can evaluate against it
     args_used = 2

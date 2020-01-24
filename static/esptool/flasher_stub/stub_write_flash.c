@@ -1,14 +1,20 @@
-/* Command handlers for writing out to flash.
- *
- *  Called from stub_flasher.c
- *
- * Copyright (c) 2016 Cesanta Software Limited & Espressif Systems (Shanghai) PTE LTD.
+/*
+ * Copyright (c) 2016-2019 Espressif Systems (Shanghai) PTE LTD & Cesanta Software Limited
  * All rights reserved
+ *
+ * This file is part of the esptool.py binary flasher stub.
  *
  * This program is free software; you can redistribute it and/or modify it under
  * the terms of the GNU General Public License as published by the Free Software
  * Foundation; either version 2 of the License, or (at your option) any later version.
  *
+ * This program is distributed in the hope that it will be useful, but WITHOUT
+ * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
+ * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
+ *
+ * You should have received a copy of the GNU General Public License along with
+ * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
+ * Street, Fifth Floor, Boston, MA 02110-1301 USA.
  */
 #include "soc_support.h"
 #include "stub_write_flash.h"
@@ -63,11 +69,11 @@ esp_command_error get_flash_error(void)
 inline static void spi_wait_ready(void)
 {
   /* Wait for SPI state machine ready */
-  while((REG_READ(SPI_EXT2_REG(SPI_IDX)) & SPI_ST))
+  while((READ_REG(SPI_EXT2_REG) & SPI_ST))
     { }
 #ifdef ESP32
-  while(REG_READ(SPI_EXT2_REG(0)) & SPI_ST)
-    { }
+  while(READ_REG(SPI0_EXT2_REG) & SPI_ST)
+  { }
 #endif
 }
 
@@ -80,12 +86,12 @@ inline static void spi_wait_ready(void)
 static bool spiflash_is_ready(void)
 {
   spi_wait_ready();
-  REG_WRITE(SPI_RD_STATUS_REG(SPI_IDX), 0);
+  WRITE_REG(SPI_RD_STATUS_REG, 0);
   /* Issue read status command */
-  REG_WRITE(SPI_CMD_REG(SPI_IDX), SPI_FLASH_RDSR);
-  while(REG_READ(SPI_CMD_REG(SPI_IDX)) != 0)
+  WRITE_REG(SPI_CMD_REG, SPI_FLASH_RDSR);
+  while(READ_REG(SPI_CMD_REG) != 0)
     { }
-  uint32_t status_value = REG_READ(SPI_RD_STATUS_REG(SPI_IDX));
+  uint32_t status_value = READ_REG(SPI_RD_STATUS_REG);
   return (status_value & STATUS_WIP_BIT) == 0;
 }
 
@@ -93,8 +99,8 @@ static void spi_write_enable(void)
 {
   while(!spiflash_is_ready())
     { }
-  REG_WRITE(SPI_CMD_REG(SPI_IDX), SPI_FLASH_WREN);
-  while(REG_READ(SPI_CMD_REG(SPI_IDX)) != 0)
+  WRITE_REG(SPI_CMD_REG, SPI_FLASH_WREN);
+  while(READ_REG(SPI_CMD_REG) != 0)
     { }
 }
 
@@ -124,7 +130,7 @@ SpiFlashOpResult SPIUnlock(void)
 
   spi_write_enable();
 
-  SET_PERI_REG_MASK(SPI_CTRL_REG(SPI_IDX), SPI_WRSR_2B);
+  REG_SET_MASK(SPI_CTRL_REG, SPI_WRSR_2B);
   if (SPI_write_status(flashchip, status) != SPI_FLASH_RESULT_OK) {
     return SPI_FLASH_RESULT_ERR;
   }
@@ -186,9 +192,9 @@ static void start_next_erase(void)
 
   uint32_t addr = fs.next_erase_sector * FLASH_SECTOR_SIZE;
   spi_wait_ready();
-  REG_WRITE(SPI_ADDR_REG(SPI_IDX), addr & 0xffffff);
-  REG_WRITE(SPI_CMD_REG(SPI_IDX), command);
-  while(REG_READ(SPI_CMD_REG(SPI_IDX)) != 0)
+  WRITE_REG(SPI_ADDR_REG, addr & 0xffffff);
+  WRITE_REG(SPI_CMD_REG, command);
+  while(READ_REG(SPI_CMD_REG) != 0)
     { }
   fs.remaining_erase_sector -= sectors_to_erase;
   fs.next_erase_sector += sectors_to_erase;

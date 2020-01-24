@@ -1,5 +1,5 @@
 /*
- * Copyright (c) 2016 Cesanta Software Limited
+ * Copyright (c) 2016 Cesanta Software Limited & (c) 2016-2019 Espressif Systems (Shanghai) PTE LTD
  * All rights reserved
  *
  * This program is free software; you can redistribute it and/or modify it under
@@ -18,11 +18,7 @@
 #ifndef SLIP_H_
 #define SLIP_H_
 
-#ifdef ESP8266
-#include <c_types.h>
-#else
 #include <stdint.h>
-#endif
 
 /* Send the SLIP frame begin/end delimiter. */
 void SLIP_send_frame_delimiter(void);
