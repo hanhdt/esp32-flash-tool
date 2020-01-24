@@ -2,20 +2,33 @@
   <!-- FOOTER -->
   <footer class="footer-site fixed-bottom">
     <div class="copy-right text-center">
-      © 2019 Developed with ❤️ by Hanh DT
-      <span>{{ appVersion }}</span>
+      <span class="connect-status">
+        {{ connectedStatus }}
+      </span>
+      {{ footerCopyright }}
+      <span class="app-version">
+        {{ appVersion }}
+      </span>
     </div>
   </footer>
 </template>
 
 <script>
 import { remote } from 'electron'
+import { mapGetters } from 'vuex'
 
 export default {
   name: 'AppFooter',
   computed: {
+    ...mapGetters(['connectedDevices']),
     appVersion () {
       return process.env.npm_package_version || remote.app.getVersion()
+    },
+    connectedStatus () {
+      return this.connectedDevices.length > 0 ? 'Board connected' : 'n/a'
+    },
+    footerCopyright () {
+      return `© ${new Date().getFullYear()} Developed by with ❤️ at AROMAJOIN`
     }
   }
 }
@@ -31,10 +44,15 @@ export default {
     letter-spacing: 1px;
     font-weight: 600;
     color: $color-button-text;
-    span {
+    .connect-status {
+      text-decoration-color: #F0F4F8;
+      float: left;
+      margin-left: 10px;
+    }
+    .app-version {
       text-decoration: underline;
       text-decoration-style: dotted;
-      text-decoration-color: $color-button-text;
+      text-decoration-color: #F0F4F8;
       float: right;
       margin-right: 10px;
     }
