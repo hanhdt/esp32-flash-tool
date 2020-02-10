@@ -53,7 +53,7 @@
     "babel-preset-stage-0": "^6.24.1",
     "babel-register": "^6.26.0",
     "babili-webpack-plugin": "^0.1.2",
-    "cfonts": "^2.4.8",
+    "cfonts": "^2.6.1",
     "chai": "^4.1.2",
     "chalk": "^3.0.0",
     "copy-webpack-plugin": "^4.5.1",
