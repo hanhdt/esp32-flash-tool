@@ -32,7 +32,7 @@
     "lodash": "^4.17.20",
     "node-uuid": "^1.4.8",
     "normalize.css": "^8.0.1",
-    "python-shell": "^1.0.8",
+    "python-shell": "^3.0.0",
     "serialport": "^8.0.6",
     "vue": "^2.6.12",
     "vue-electron": "^1.0.6",
