@@ -1,0 +1,19 @@
+version: 2
+updates:
+- package-ecosystem: npm
+  directory: "/"
+  schedule:
+    interval: weekly
+    time: "20:00"
+  open-pull-requests-limit: 10
+  ignore:
+  - dependency-name: chalk
+    versions:
+    - 4.1.0
+  - dependency-name: date-fns
+    versions:
+    - 2.16.1
+    - 2.17.0
+  - dependency-name: eslint-plugin-promise
+    versions:
+    - 4.2.1
