@@ -50,8 +50,9 @@ static struct {
 
 /* SPI status bits */
 static const uint32_t STATUS_WIP_BIT = (1 << 0);
-static const uint32_t STATUS_CMP_BIT = (1 << 14); /* Complement Protect */
-static const uint32_t STATUS_QIE_BIT = (1 << 9); /* Quad Enable */
+#if ESP32_OR_LATER
+static const uint32_t STATUS_QIE_BIT = (1 << 9);  /* Quad Enable */
+#endif
 
 bool is_in_flash_mode(void)
 {
@@ -71,7 +72,7 @@ inline static void spi_wait_ready(void)
   /* Wait for SPI state machine ready */
   while((READ_REG(SPI_EXT2_REG) & SPI_ST))
     { }
-#ifdef ESP32
+#if ESP32_OR_LATER
   while(READ_REG(SPI0_EXT2_REG) & SPI_ST)
   { }
 #endif
@@ -104,8 +105,12 @@ static void spi_write_enable(void)
     { }
 }
 
-#ifdef ESP32
+#if ESP32_OR_LATER
+#ifdef ESP32C3
+static esp_rom_spiflash_chip_t *flashchip = (esp_rom_spiflash_chip_t *)0x3fcdfff4;
+#else
 static esp_rom_spiflash_chip_t *flashchip = (esp_rom_spiflash_chip_t *)0x3ffae270;
+#endif
 
 /* Stub version of SPIUnlock() that replaces version in ROM.
 
@@ -119,9 +124,15 @@ SpiFlashOpResult SPIUnlock(void)
   uint32_t status;
 
   spi_wait_ready(); /* ROM SPI_read_status_high() doesn't wait for this */
+#if ESP32S2_OR_LATER
+  if (SPI_read_status_high(flashchip, &status) != SPI_FLASH_RESULT_OK) {
+    return SPI_FLASH_RESULT_ERR;
+  }
+#else
   if (SPI_read_status_high(&status) != SPI_FLASH_RESULT_OK) {
     return SPI_FLASH_RESULT_ERR;
   }
+#endif
 
   /* Clear all bits except QIE, if it is set.
      (This is different from ROM SPIUnlock, which keeps all bits as-is.)
@@ -236,8 +247,7 @@ void handle_flash_data(void *data_buf, uint32_t length) {
   fs.remaining -= length;
 }
 
-
-#ifdef ESP32
+#if !ESP8266
 /* Write encrypted data to flash (either direct for non-compressed upload, or
    freshly decompressed.) Erases as it goes.
 
@@ -245,6 +255,11 @@ void handle_flash_data(void *data_buf, uint32_t length) {
 */
 void handle_flash_encrypt_data(void *data_buf, uint32_t length) {
   int last_sector;
+  int res;
+
+#if ESP32S2_OR_LATER
+  SPI_Write_Encrypt_Enable();
+#endif
 
   if (length > fs.remaining) {
       /* Trim the final block, as it may have padding beyond
@@ -267,13 +282,24 @@ void handle_flash_encrypt_data(void *data_buf, uint32_t length) {
     {}
 
   /* do the actual write */
-  if (esp_rom_spiflash_write_encrypted(fs.next_write, data_buf, length)) {
+#if ESP32
+  res = esp_rom_spiflash_write_encrypted(fs.next_write, data_buf, length);
+#else
+  res = SPI_Encrypt_Write(fs.next_write, data_buf, length);
+#endif
+
+  if (res) {
     fs.last_error = ESP_FAILED_SPI_OP;
   }
   fs.next_write += length;
   fs.remaining -= length;
-}
+
+#if ESP32S2_OR_LATER
+  SPI_Write_Encrypt_Disable();
 #endif
+}
+
+#endif // !ESP8266
 
 void handle_flash_deflated_data(void *data_buf, uint32_t length) {
   static uint8_t out_buf[32768];
