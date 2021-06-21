@@ -33,7 +33,7 @@
     "node-uuid": "^1.4.8",
     "normalize.css": "^8.0.1",
     "python-shell": "^1.0.8",
-    "serialport": "^8.0.6",
+    "serialport": "^9.2.0",
     "vue": "^2.6.12",
     "vue-electron": "^1.0.6",
     "vue-i18n": "^8.15.1",
