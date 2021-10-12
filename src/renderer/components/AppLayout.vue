@@ -1,8 +1,6 @@
 <template>
   <div :class="layoutClass">
-    <!-- HEADER -->
     <AppHeader/>
-    <!-- BODY CONTENT -->
     <div class="content-site">
       <slot name="body"/>
     </div>

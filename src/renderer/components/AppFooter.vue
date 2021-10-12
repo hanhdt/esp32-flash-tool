@@ -1,5 +1,4 @@
 <template>
-  <!-- FOOTER -->
   <footer class="footer-site fixed-bottom">
     <div class="copy-right text-center">
       <span class="connect-status">
