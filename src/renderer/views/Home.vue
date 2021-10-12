@@ -127,7 +127,7 @@
 // @ is an alias to /src
 import { ipcRenderer, remote } from 'electron'
 import { mapActions, mapGetters } from 'vuex'
-import uuidv4 from 'uuid/v4'
+import * as uuid from 'uuid'
 import path from 'path'
 import fs from 'fs'
 import { formatDistance } from 'date-fns'
@@ -285,9 +285,9 @@ export default {
     listenFlashingComplete () {
       ipcRenderer.on('flashing-progress-completed', (event, code) => {
         if (code === 0) {
-          this.updateProgress({id: uuidv4(), data: 'Done.'})
+          this.updateProgress({id: uuid.v4(), data: 'Done.'})
         } else {
-          this.updateProgress({id: uuidv4(), data: 'Failed.'})
+          this.updateProgress({id: uuid.v4(), data: 'Failed.'})
         }
 
         this.updateFlashingStatus(code)
