@@ -1,7 +1,7 @@
 import { PythonShell } from 'python-shell'
 import { app } from 'electron'
 import path from 'path'
-const uuidv4 = require('uuid/v4')
+import * as uuid from 'uuid'
 
 export default function spiFlashImage (mainWindow, params) {
   let espToolPath = ''
@@ -39,7 +39,7 @@ export default function spiFlashImage (mainWindow, params) {
   pyShell.on('message', (message) => {
     const messageArray = message.split('\r')
     messageArray.forEach((messageItem) => {
-      const msg = { id: uuidv4(), data: messageItem }
+      const msg = { id: uuid.v4(), data: messageItem }
       mainWindow.webContents.send('flashing-progress-updated', msg)
     })
   })
