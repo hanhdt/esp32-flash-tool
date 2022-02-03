@@ -1,14 +1,15 @@
 directories:
   output: release
 appId: com.hanhdt.esp.flashtool
-copyright: "Copyright © 2020 Hanh D. TRAN"
+copyright: "Copyright © 2022 Hanh D. TRAN"
 asar: true
 asarUnpack:
   - dist/electron/static/esptool/**/*
 
-productName: ESP32FlashTool
+productName: ESP32FirmwareTool
 files:
   - dist/electron/**/*
+  - embedded.provisionprofile
 
 # Mac OS configuration
 mac:
@@ -16,15 +17,8 @@ mac:
   icon: static/icons/icon.icns
   target:
     - pkg
-    - dmg
     - zip
-
-# Mac OS AppStore configuration
-# mas:
-#   type: distribution
-#   category: public.app-category.utilities
-#   entitlements: build/entitlements.mas.plist
-#   icon: static/icons/icon.icns
+    - dmg
 
 dmg:
   contents:
