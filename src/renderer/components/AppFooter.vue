@@ -27,7 +27,7 @@ export default {
       return this.connectedDevices.length > 0 ? 'Board connected' : 'n/a'
     },
     footerCopyright () {
-      return `© ${new Date().getFullYear()} Developed by with ❤️ at AROMAJOIN`
+      return `© ${new Date().getFullYear()} Developed by with ❤️ by Hanh D. Tran`
     }
   }
 }
