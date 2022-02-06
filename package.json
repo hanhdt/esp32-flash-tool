@@ -1,7 +1,7 @@
 {
   "name": "esp32-flash-tool",
   "productName": "ESP32FlashTool",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "author": "Hanh D. Tran <tranduchanh.ms@gmail.com>",
   "description": "A cross-platform desktop application allows to simplify flashing ESP32 boards with single compressed file.",
   "copyright": "Copyright © 2020 Hanh D. TRAN",
