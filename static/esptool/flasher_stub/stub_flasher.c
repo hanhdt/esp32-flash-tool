@@ -1,20 +1,9 @@
 /*
- * Copyright (c) 2016-2019 Espressif Systems (Shanghai) PTE LTD & Cesanta Software Limited
- * All rights reserved
+ * SPDX-FileCopyrightText: 2016 Cesanta Software Limited
  *
- * This file is part of the esptool.py binary flasher stub.
+ * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
- * Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * SPDX-FileContributor: 2016-2022 Espressif Systems (Shanghai) CO LTD
  */
 
 /*
@@ -103,7 +92,7 @@ void cmd_loop() {
     esp_command_response_t resp = {
       .resp = 1,
       .op_ret = command->op,
-      .len_ret = 2, /* esptool.py ignores this value, but other users of the stub may not */
+      .len_ret = 2, /* esptool.py checks this length */
       .value = 0,
     };
 
@@ -117,6 +106,11 @@ void cmd_loop() {
     case ESP_FLASH_VERIFY_MD5:
         resp.len_ret = 16 + 2; /* Will sent 16 bytes of data with MD5 value */
         break;
+    #if ESP32S2_OR_LATER
+    case ESP_GET_SECURITY_INFO:
+        resp.len_ret = SECURITY_INFO_BYTES; /* Buffer size varies */
+        break;
+    #endif // ESP32S2_OR_LATER
     default:
         break;
     }
@@ -132,15 +126,41 @@ void cmd_loop() {
       continue;
     }
 
-    /* ... ESP_FLASH_VERIFY_MD5 will insert in-frame response data
-       between here and when we send the status bytes at the
-       end of the frame */
+    /* ... ESP_FLASH_VERIFY_MD5 and ESP_GET_SECURITY_INFO will insert
+    * in-frame response data between here and when we send the
+    * status bytes at the end of the frame */
 
     esp_command_error error = ESP_CMD_NOT_IMPLEMENTED;
     int status = 0;
 
     /* First stage of command processing - before sending error/status */
     switch (command->op) {
+    case ESP_SYNC:
+      /* Bootloader responds to the SYNC request with eight identical SYNC responses. Stub flasher should react
+      * the same way so SYNC could be possible with the flasher stub as well. This helps in cases when the chip
+      * cannot be reset and the flasher stub keeps running. */
+      error = verify_data_len(command, 36);
+
+      if (error == ESP_OK) {
+        /* resp.value remains 0 which esptool.py can use to detect the flasher stub */
+        resp.value = 0;
+        for (int i = 0; i < 7; ++i) {
+            SLIP_send_frame_data(error);
+            SLIP_send_frame_data(status);
+            SLIP_send_frame_delimiter(); /* end the previous frame */
+
+            SLIP_send_frame_delimiter(); /* start new frame */
+            SLIP_send_frame_data_buf(&resp, sizeof(esp_command_response_t));
+        }
+        /* The last frame is ended outside of the "switch case" at the same place regular one-response frames are
+         * ended. */
+      }
+      break;
+    #if ESP32S2_OR_LATER && !ESP32H2BETA2
+    case ESP_GET_SECURITY_INFO:
+      error = verify_data_len(command, 0) || handle_get_security_info();
+      break;
+    #endif // ESP32S2_OR_LATER
     case ESP_ERASE_FLASH:
       error = verify_data_len(command, 0) || SPIEraseChip();
       break;
@@ -226,10 +246,11 @@ void cmd_loop() {
       error = verify_data_len(command, 4) || handle_spi_attach(data_words[0]);
       break;
     case ESP_WRITE_REG:
-      /* params are addr, value, mask (ignored), delay_us (ignored) */
-      error = verify_data_len(command, 16);
-      if (error == ESP_OK) {
-        WRITE_REG(data_words[0], data_words[1]);
+      /* The write_reg command can pass multiple write operations in a sequence */
+      if (command->data_len % sizeof(write_reg_args_t) != 0) {
+          error = ESP_BAD_DATA_LEN;
+      } else {
+          error = handle_write_reg((const write_reg_args_t *)data_words, command->data_len/sizeof(write_reg_args_t));
       }
       break;
     case ESP_READ_REG:
@@ -364,7 +385,12 @@ void stub_main()
 
         spi_flash_attach();
 #else
+#if !ESP32C2
         uint32_t spiconfig = ets_efuse_get_spiconfig();
+#else
+        // ESP32C2 doesn't support get spiconfig.
+        uint32_t spiconfig = 0;
+#endif
         uint32_t strapping = READ_REG(GPIO_STRAP_REG);
         /* If GPIO1 (U0TXD) is pulled low and no other boot mode is
            set in efuse, assume HSPI flash mode (same as normal boot)
@@ -374,7 +400,7 @@ void stub_main()
         }
         spi_flash_attach(spiconfig, 0);
 #endif
-        SPIParamCfg(0, 16*1024*1024, FLASH_BLOCK_SIZE, FLASH_SECTOR_SIZE,
+        SPIParamCfg(0, FLASH_MAX_SIZE, FLASH_BLOCK_SIZE, FLASH_SECTOR_SIZE,
                     FLASH_PAGE_SIZE, FLASH_STATUS_MASK);
 
   cmd_loop();

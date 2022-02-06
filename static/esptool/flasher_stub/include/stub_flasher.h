@@ -1,19 +1,9 @@
 /*
- * Copyright (c) 2016 Cesanta Software Limited and 2016-2019 Espressif Systems (Shanghai) PTE LTD
+ * SPDX-FileCopyrightText: 2016 Cesanta Software Limited
  *
- * All rights reserved
+ * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
- * Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * SPDX-FileContributor: 2016-2022 Espressif Systems (Shanghai) CO LTD
  */
 
 #ifndef STUB_FLASHER_H_
@@ -30,6 +20,13 @@
 #define FLASH_PAGE_SIZE 256
 #define FLASH_STATUS_MASK 0xFFFF
 #define SECTORS_PER_BLOCK (FLASH_BLOCK_SIZE / FLASH_SECTOR_SIZE)
+
+/* 32-bit addressing is supported only by ESP32S3 */
+#if defined(ESP32S3)
+#define FLASH_MAX_SIZE 64*1024*1024
+#else
+#define FLASH_MAX_SIZE 16*1024*1024
+#endif
 
 /* Full set of protocol commands */
 typedef enum {
@@ -54,6 +51,9 @@ typedef enum {
   ESP_FLASH_DEFLATED_DATA = 0x11,
   ESP_FLASH_DEFLATED_END = 0x12,
   ESP_FLASH_VERIFY_MD5 = 0x13,
+
+  /* Commands supported by the ESP32S2 and later bootloaders */
+  ESP_GET_SECURITY_INFO = 0x14,
 
   /* Stub-only commands */
   ESP_ERASE_FLASH = 0xD0,

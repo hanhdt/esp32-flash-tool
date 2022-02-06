@@ -1,24 +1,14 @@
 #!/usr/bin/env python
-# ESP32 secure boot utility
-# https://github.com/themadinventor/esptool
 #
-# Copyright (C) 2016 Espressif Systems (Shanghai) PTE LTD
+# SPDX-FileCopyrightText: 2016-2022 Espressif Systems (Shanghai) CO LTD
 #
-# This program is free software; you can redistribute it and/or modify it under
-# the terms of the GNU General Public License as published by the Free Software
-# Foundation; either version 2 of the License, or (at your option) any later version.
-#
-# This program is distributed in the hope that it will be useful, but WITHOUT
-# ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
-# FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
-#
-# You should have received a copy of the GNU General Public License along with
-# this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
-# Street, Fifth Floor, Boston, MA 02110-1301 USA.
+# SPDX-License-Identifier: GPL-2.0-or-later
+
 from __future__ import division, print_function
 
 import argparse
 import hashlib
+import operator
 import os
 import struct
 import sys
@@ -37,6 +27,13 @@ from cryptography.utils import int_to_bytes
 import ecdsa
 
 import esptool
+
+try:
+    _string_type = basestring
+except NameError:
+    # this has to be done with exception in order to avoid flake8 error
+    # Python 3
+    _string_type = str
 
 
 def get_chunks(source, chunk_len):
@@ -59,21 +56,22 @@ def swap_word_order(source):
 
 
 def _load_hardware_key(keyfile):
-    """ Load a 256-bit key, similar to stored in efuse, from a file
+    """ Load a 256/512-bit key, similar to stored in efuse, from a file
 
     192-bit keys will be extended to 256-bit using the same algorithm used
     by hardware if 3/4 Coding Scheme is set.
     """
     key = keyfile.read()
-    if len(key) not in [24, 32]:
-        raise esptool.FatalError("Key file contains wrong length (%d bytes), 24 or 32 expected." % len(key))
+    if len(key) not in [24, 32, 64]:
+        raise esptool.FatalError("Key file contains wrong length (%d bytes), 24, 32 or 64 expected." % len(key))
     if len(key) == 24:
         key = key + key[8:16]
+        assert len(key) == 32
         print("Using 192-bit key (extended)")
-    else:
+    elif len(key) == 32:
         print("Using 256-bit key")
-
-    assert len(key) == 32
+    else:
+        print("Using 512-bit key")
     return key
 
 
@@ -81,6 +79,9 @@ def digest_secure_bootloader(args):
     """ Calculate the digest of a bootloader image, in the same way the hardware
     secure boot engine would do so. Can be used with a pre-loaded key to update a
     secure bootloader. """
+    _check_output_is_not_input(args.keyfile, args.output)
+    _check_output_is_not_input(args.image, args.output)
+    _check_output_is_not_input(args.iv, args.output)
     if args.iv is not None:
         print("WARNING: --iv argument is for TESTING PURPOSES ONLY")
         iv = args.iv.read(128)
@@ -216,6 +217,8 @@ def _get_sbv2_rsa_primitives(public_key):
 
 
 def sign_data(args):
+    _check_output_is_not_input(args.keyfile, args.output)
+    _check_output_is_not_input(args.datafile, args.output)
     if args.version == '1':
         return sign_secure_boot_v1(args)
     elif args.version == '2':
@@ -448,6 +451,7 @@ def verify_signature_v2(args):
 
 
 def extract_public_key(args):
+    _check_output_is_not_input(args.keyfile, args.public_keyfile)
     if args.version == "1":
         """ Load an ECDSA private key and extract the embedded public key as raw binary data. """
         sk = _load_ecdsa_signing_key(args.keyfile)
@@ -455,7 +459,7 @@ def extract_public_key(args):
         args.public_keyfile.write(vk.to_string())
     elif args.version == "2":
         """ Load an RSA private key and extract the public key as raw binary data. """
-        sk = _load_sbv2_rsa_signing_key(args.keyfile)
+        sk = _load_sbv2_rsa_signing_key(args.keyfile.read())
         vk = sk.public_key().public_bytes(
             encoding=serialization.Encoding.PEM,
             format=serialization.PublicFormat.SubjectPublicKeyInfo
@@ -519,6 +523,7 @@ def _digest_rsa_public_key(keyfile):
 
 
 def digest_rsa_public_key(args):
+    _check_output_is_not_input(args.keyfile, args.output)
     public_key_digest = _digest_rsa_public_key(args.keyfile)
     with open(args.output, "wb") as f:
         print("Writing the public key digest of %s to %s." % (args.keyfile.name, args.output))
@@ -526,6 +531,7 @@ def digest_rsa_public_key(args):
 
 
 def digest_private_key(args):
+    _check_output_is_not_input(args.keyfile, args.digest_file)
     sk = _load_ecdsa_signing_key(args.keyfile)
     repr(sk.to_string())
     digest = hashlib.sha256()
@@ -640,7 +646,7 @@ def generate_flash_encryption_key(args):
     args.key_file.write(os.urandom(args.keylen // 8))
 
 
-def _flash_encryption_operation(output_file, input_file, flash_address, keyfile, flash_crypt_conf, do_decrypt):
+def _flash_encryption_operation_esp32(output_file, input_file, flash_address, keyfile, flash_crypt_conf, do_decrypt):
     key = _load_hardware_key(keyfile)
 
     if flash_address % 16 != 0:
@@ -709,15 +715,160 @@ def _flash_encryption_operation(output_file, input_file, flash_address, keyfile,
         block_offs += 16
 
 
+def _flash_encryption_operation_aes_xts(output_file, input_file, flash_address, keyfile, do_decrypt):
+    """
+    Apply the AES-XTS algorithm with the hardware addressing scheme used by Espressif
+
+    key = AES-XTS key (32 or 64 bytes)
+    flash_address = address in flash to encrypt at. Must be multiple of 16 bytes.
+    indata = Data to encrypt/decrypt. Must be multiple of 16 bytes.
+    encrypt = True to Encrypt indata, False to decrypt indata.
+
+    Returns a bitstring of the ciphertext or plaintext result.
+    """
+
+    backend = default_backend()
+    key = _load_hardware_key(keyfile)
+    indata = input_file.read()
+
+    if flash_address % 16 != 0:
+        raise esptool.FatalError("Starting flash address 0x%x must be a multiple of 16" % flash_address)
+
+    if len(indata) % 16 != 0:
+        raise esptool.FatalError("Input data length (%d) must be a multiple of 16" % len(indata))
+
+    if len(indata) == 0:
+        raise esptool.FatalError("Input data must be longer than 0")
+
+    # left pad for a 1024-bit aligned address
+    pad_left = flash_address % 0x80
+    indata = (b"\x00" * pad_left) + indata
+
+    # right pad for full 1024-bit blocks
+    pad_right = len(indata) % 0x80
+    if pad_right > 0:
+        pad_right = 0x80 - pad_right
+    indata = indata + (b"\x00" * pad_right)
+
+    inblocks = _split_blocks(indata, 0x80)  # split into 1024 bit blocks
+
+    output = b""
+    for inblock in inblocks:  # for each block
+        tweak = struct.pack("<I", (flash_address & ~0x7F)) + (b"\x00" * 12)
+        flash_address += 0x80   # for next block
+
+        if len(tweak) != 16:
+            raise esptool.FatalError("Length of tweak must be 16, was {}".format(len(tweak)))
+
+        cipher = Cipher(algorithms.AES(key), modes.XTS(tweak), backend=backend)
+        encryptor = cipher.decryptor() if do_decrypt else cipher.encryptor()
+
+        inblock = inblock[::-1]               # reverse input
+        outblock = encryptor.update(inblock)  # standard algo
+        output += outblock[::-1]              # reverse output
+
+    # undo any padding we applied to the input
+    if pad_right != 0:
+        output = output[:-pad_right]
+    if pad_left != 0:
+        output = output[pad_left:]
+
+    # output length matches original input
+    if len(output) != len(indata) - pad_left - pad_right:
+        raise esptool.FatalError("Length of input data ({}) should match the output data ({})".format(len(indata) - pad_left - pad_right, len(output)))
+
+    output_file.write(output)
+
+
+def _split_blocks(text, block_len=16):
+    """ Take a bitstring, split it into chunks of "block_len" each """
+    assert len(text) % block_len == 0
+    while len(text) > 0:
+        yield text[0:block_len]
+        text = text[block_len:]
+
+
 def decrypt_flash_data(args):
-    return _flash_encryption_operation(args.output, args.encrypted_file, args.address, args.keyfile, args.flash_crypt_conf, True)
+    _check_output_is_not_input(args.keyfile, args.output)
+    _check_output_is_not_input(args.encrypted_file, args.output)
+    if args.aes_xts:
+        return _flash_encryption_operation_aes_xts(args.output, args.encrypted_file, args.address, args.keyfile, True)
+    else:
+        return _flash_encryption_operation_esp32(args.output, args.encrypted_file, args.address, args.keyfile, args.flash_crypt_conf, True)
 
 
 def encrypt_flash_data(args):
-    return _flash_encryption_operation(args.output, args.plaintext_file, args.address, args.keyfile, args.flash_crypt_conf, False)
+    _check_output_is_not_input(args.keyfile, args.output)
+    _check_output_is_not_input(args.plaintext_file, args.output)
+    if args.aes_xts:
+        return _flash_encryption_operation_aes_xts(args.output, args.plaintext_file, args.address, args.keyfile, False)
+    else:
+        return _flash_encryption_operation_esp32(args.output, args.plaintext_file, args.address, args.keyfile, args.flash_crypt_conf, False)
 
 
-def main():
+def _samefile(p1, p2):
+    try:
+        return os.path.samefile(p1, p2)
+    except (OSError, AttributeError):
+        # AttributeError - Python 2.7 on Windows doesn't know os.path.samefile()
+        # OSError (FileNotFoundError under Python 3)
+        return os.path.normcase(os.path.normpath(p1)) == os.path.normcase(os.path.normpath(p2))
+
+
+def _check_output_is_not_input(input_file, output_file):
+    i = getattr(input_file, 'name', input_file)
+    o = getattr(output_file, 'name', output_file)
+    # i & o should be string containing the path to files if espsecure was invoked from command line
+    # i & o still can be something else when espsecure was imported and the functions used directly (e.g. io.BytesIO())
+    check_f = _samefile if isinstance(i, _string_type) and isinstance(o, _string_type) else operator.eq
+    if check_f(i, o):
+        raise esptool.FatalError('The input "{}" and output "{}" should not be the same!'.format(i, o))
+
+
+class OutFileType(object):
+    """
+    This class is a replacement of argparse.FileType('wb'). It doesn't create a file immediately but only during the
+    first write. This allows us to do some checking before, e.g. that we are not overwriting the input.
+
+    argparse.FileType('w')('-') returns STDOUT but argparse.FileType('wb') is not.
+
+    The file object is not closed on failure just like in the case of argparse.FileType('w').
+    """
+    def __init__(self):
+        self.path = None
+        self.file_obj = None
+
+    def __call__(self, path):
+        self.path = path
+        return self
+
+    def __repr__(self):
+        return '{}({})'.format(type(self).__name__, self.path)
+
+    def write(self, payload):
+        if len(payload) > 0:
+            if not self.file_obj:
+                self.file_obj = open(self.path, 'wb')
+            self.file_obj.write(payload)
+
+    def close(self):
+        if self.file_obj:
+            self.file_obj.close()
+            self.file_obj = None
+
+    @property
+    def name(self):
+        return self.path
+
+
+def main(custom_commandline=None):
+    """
+    Main function for espsecure
+
+    custom_commandline - Optional override for default arguments parsing (that uses sys.argv), can be a list of custom arguments
+    as strings. Arguments and their values need to be added as individual items to the list e.g. "--port /dev/ttyUSB1" thus
+    becomes ['--port', '/dev/ttyUSB1'].
+    """
     parser = argparse.ArgumentParser(description='espsecure.py v%s - ESP32 Secure Boot & Flash Encryption tool' % esptool.__version__, prog='espsecure')
 
     subparsers = parser.add_subparsers(
@@ -741,7 +892,7 @@ def main():
     p.add_argument('keyfile', help="Filename for private key file (embedded public key)")
 
     p = subparsers.add_parser('sign_data',
-                              help='Sign a data file for use with secure boot. Signing algorithm is determinsitic ECDSA w/ SHA-512 (V1) '
+                              help='Sign a data file for use with secure boot. Signing algorithm is deterministic ECDSA w/ SHA-512 (V1) '
                               'or RSA-PSS w/ SHA-256 (V2).')
     p.add_argument('--version', '-v', help="Version of the secure boot signing scheme to use.", choices=["1", "2"], required=True)
     p.add_argument('--keyfile', '-k', help="Private key file for signing. Key is in PEM format.", type=argparse.FileType('rb'), required=True, nargs='+')
@@ -763,7 +914,7 @@ def main():
     p.add_argument('--version', '-v', help="Version of the secure boot signing scheme to use.", choices=["1", "2"], default="1")
     p.add_argument('--keyfile', '-k', help="Private key file (PEM format) to extract the public verification key from.", type=argparse.FileType('rb'),
                    required=True)
-    p.add_argument('public_keyfile', help="File to save new public key into", type=argparse.FileType('wb'))
+    p.add_argument('public_keyfile', help="File to save new public key into", type=OutFileType())
 
     p = subparsers.add_parser('digest_rsa_public_key', help='Generate an SHA-256 digest of the public key. '
                               'This digest is burned into the eFuse and asserts the legitimacy of the public key for Secure boot v2.')
@@ -780,40 +931,48 @@ def main():
                    required=True)
     p.add_argument('--keylen', '-l', help="Length of private key digest file to generate (in bits). 3/4 Coding Scheme requires 192 bit key.",
                    choices=[192, 256], default=256, type=int)
-    p.add_argument('digest_file', help="File to write 32 byte digest into", type=argparse.FileType('wb'))
+    p.add_argument('digest_file', help="File to write 32 byte digest into", type=OutFileType())
 
-    p = subparsers.add_parser('generate_flash_encryption_key', help='Generate a development-use 32 byte flash encryption key with random data.')
+    p = subparsers.add_parser('generate_flash_encryption_key', help='Generate a development-use flash encryption key with random data.')
     p.add_argument('--keylen', '-l', help="Length of private key digest file to generate (in bits). 3/4 Coding Scheme requires 192 bit key.",
-                   choices=[192, 256], default=256, type=int)
-    p.add_argument('key_file', help="File to write 24 or 32 byte digest into", type=argparse.FileType('wb'))
+                   choices=[192, 256, 512], default=256, type=int)
+    p.add_argument('key_file', help="File to write 24, 32 or 64 byte key into", type=OutFileType())
 
     p = subparsers.add_parser('decrypt_flash_data', help='Decrypt some data read from encrypted flash (using known key)')
     p.add_argument('encrypted_file', help="File with encrypted flash contents", type=argparse.FileType('rb'))
+    p.add_argument('--aes_xts', '-x', help="Decrypt data using AES-XTS as used on ESP32-S2 and ESP32-C3", action='store_true')
     p.add_argument('--keyfile', '-k', help="File with flash encryption key", type=argparse.FileType('rb'),
                    required=True)
-    p.add_argument('--output', '-o', help="Output file for plaintext data.", type=argparse.FileType('wb'),
+    p.add_argument('--output', '-o', help="Output file for plaintext data.", type=OutFileType(),
                    required=True)
     p.add_argument('--address', '-a', help="Address offset in flash that file was read from.", required=True, type=esptool.arg_auto_int)
     p.add_argument('--flash_crypt_conf', help="Override FLASH_CRYPT_CONF efuse value (default is 0XF).", required=False, default=0xF, type=esptool.arg_auto_int)
 
     p = subparsers.add_parser('encrypt_flash_data', help='Encrypt some data suitable for encrypted flash (using known key)')
+    p.add_argument('--aes_xts', '-x', help="Encrypt data using AES-XTS as used on ESP32-S2 and ESP32-C3", action='store_true')
     p.add_argument('--keyfile', '-k', help="File with flash encryption key", type=argparse.FileType('rb'),
                    required=True)
-    p.add_argument('--output', '-o', help="Output file for encrypted data.", type=argparse.FileType('wb'),
+    p.add_argument('--output', '-o', help="Output file for encrypted data.", type=OutFileType(),
                    required=True)
     p.add_argument('--address', '-a', help="Address offset in flash where file will be flashed.", required=True, type=esptool.arg_auto_int)
     p.add_argument('--flash_crypt_conf', help="Override FLASH_CRYPT_CONF efuse value (default is 0XF).", required=False, default=0xF, type=esptool.arg_auto_int)
     p.add_argument('plaintext_file', help="File with plaintext content for encrypting", type=argparse.FileType('rb'))
 
-    args = parser.parse_args()
+    args = parser.parse_args(custom_commandline)
     print('espsecure.py v%s' % esptool.__version__)
     if args.operation is None:
         parser.print_help()
         parser.exit(1)
 
-    # each 'operation' is a module-level function of the same name
-    operation_func = globals()[args.operation]
-    operation_func(args)
+    try:
+        # each 'operation' is a module-level function of the same name
+        operation_func = globals()[args.operation]
+        operation_func(args)
+    finally:
+        for arg_name in vars(args):
+            obj = getattr(args, arg_name)
+            if isinstance(obj, OutFileType):
+                obj.close()
 
 
 def _main():

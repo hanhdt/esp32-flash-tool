@@ -1,21 +1,10 @@
-/* Declarations for functions in ESP8266 ROM code
+/*
+ * SPDX-FileCopyrightText: 2016 Cesanta Software Limited
  *
- * Copyright (c) 2016-2019 Espressif Systems (Shanghai) PTE LTD & Cesanta Software Limited
- * All rights reserved
+ * SPDX-License-Identifier: GPL-2.0-or-later
  *
- * This program is free software; you can redistribute it and/or modify it under
- * the terms of the GNU General Public License as published by the Free Software
- * Foundation; either version 2 of the License, or (at your option) any later version.
- *
- * This program is distributed in the hope that it will be useful, but WITHOUT
- * ANY WARRANTY; without even the implied warranty of MERCHANTABILITY or FITNESS
- * FOR A PARTICULAR PURPOSE. See the GNU General Public License for more details.
- *
- * You should have received a copy of the GNU General Public License along with
- * this program; if not, write to the Free Software Foundation, Inc., 51 Franklin
- * Street, Fifth Floor, Boston, MA 02110-1301 USA.
+ * SPDX-FileContributor: 2016-2022 Espressif Systems (Shanghai) CO LTD
  */
-
 
 /* ROM function prototypes for functions in ROM which are
    called by the flasher stubs.
@@ -24,10 +13,6 @@
 
 #include <stdint.h>
 #include "soc_support.h"
-
-#if defined(ESP32S2)
-#define WITH_USB 1
-#endif
 
 int uart_rx_one_char(uint8_t *ch);
 uint8_t uart_rx_one_char_block();
@@ -70,15 +55,31 @@ void ets_set_user_start(void (*user_start_fn)());
 void software_reset();
 void software_reset_cpu(int cpu_no);
 
+#ifdef ESP32C2  // ESP32C2 ROM uses mbedtls_md5
+struct MD5Context {  // Called mbedtls_md5_context in ROM
+    uint32_t total[2];        // number of bytes processed
+    uint32_t state[4];        // intermediate digest state
+    unsigned char buffer[64]; // data block being processed
+};
+
+int mbedtls_md5_starts_ret(struct MD5Context *ctx);
+int mbedtls_md5_update_ret(struct MD5Context *ctx, const unsigned char *input, size_t ilen);
+int mbedtls_md5_finish_ret(struct MD5Context *ctx, unsigned char digest[16]);
+
+#define MD5Init(ctx) mbedtls_md5_starts_ret(ctx)
+#define MD5Update(ctx, buf, n) mbedtls_md5_update_ret(ctx, buf, n)
+#define MD5Final(digest, ctx) mbedtls_md5_finish_ret(ctx, digest)
+#else  // not ESP32C2
 struct MD5Context {
-  uint32_t buf[4];
-  uint32_t bits[2];
-  uint8_t in[64];
+    uint32_t buf[4];
+    uint32_t bits[2];
+    uint8_t in[64];
 };
 
 void MD5Init(struct MD5Context *ctx);
 void MD5Update(struct MD5Context *ctx, void *buf, uint32_t len);
 void MD5Final(uint8_t digest[16], struct MD5Context *ctx);
+#endif // not ESP32C2
 
 typedef struct {
     uint32_t device_id;
@@ -108,6 +109,7 @@ SpiFlashOpResult SPI_Encrypt_Write(uint32_t flash_addr, const void* data, uint32
 #endif
 
 #if ESP32S2_OR_LATER
+uint32_t GetSecurityInfoProc(int* pMsg, int* pnErr, uint8_t *buf);  // pMsg and pnErr unused in ROM
 SpiFlashOpResult SPI_read_status_high(esp_rom_spiflash_chip_t *spi, uint32_t *status);
 #else
 /* Note: On ESP32 this was a static function whose first argument was elided by the
@@ -118,15 +120,15 @@ SpiFlashOpResult SPI_read_status_high(uint32_t *status);
 SpiFlashOpResult SPI_write_status(esp_rom_spiflash_chip_t *spi, uint32_t status_value);
 
 void intr_matrix_set(int cpu_no, uint32_t module_num, uint32_t intr_num);
-#endif /* ESP32 || ESP32S2 */
+#endif /* ESP32_OR_LATER */
 
+/* RISC-V-only ROM functions */
+#if IS_RISCV
+void esprv_intc_int_set_priority(int intr_num, int priority);
+#endif // IS_RISCV
 
-#ifdef ESP32S2
-extern uint8_t UartDev_buff_uart_no; /* Member of UartDev, indicates which UART is used for SLIP communication */
-#define UART_USB  2                  /* value of the above which indicates that USB CDC is in use */
-#endif // ESP32S2
-
-#ifdef WITH_USB
+/* USB-OTG and USB-JTAG-Serial imports */
+#ifdef WITH_USB_OTG
 #define ACM_BYTES_PER_TX   64
 #define ACM_STATUS_LINESTATE_CHANGED   -1
 #define ACM_STATUS_RX                  -4
@@ -151,4 +153,87 @@ void cdc_acm_irq_state_enable(cdc_acm_device *dev);
 void usb_dc_check_poll_for_interrupts(void);
 void chip_usb_set_persist_flags(uint32_t flags);
 int usb_dc_prepare_persist(void);
-#endif // WITH_USB
+#endif // WITH_USB_OTG
+
+#if WITH_USB_JTAG_SERIAL || WITH_USB_OTG
+typedef struct {
+    uint8_t *pRcvMsgBuff;
+    uint8_t *pWritePos;
+    uint8_t *pReadPos;
+    uint8_t  TrigLvl;
+    int BuffState;
+} RcvMsgBuff;
+
+typedef struct {
+    int     baud_rate;
+    int     data_bits;
+    int     exist_parity;
+    int     parity;
+    int     stop_bits;
+    int     flow_ctrl;
+    uint8_t buff_uart_no;
+    RcvMsgBuff     rcv_buff;
+    int     rcv_state;
+    int     received;
+} UartDevice;
+
+UartDevice * GetUartDevice();
+#endif // WITH_USB_JTAG_SERIAL || WITH_USB_OTG
+
+/* Enabling 32-bit flash memory addressing for ESP32S3 */
+#if defined(ESP32S3)
+#define BIT(nr)                 (1UL << (nr))
+
+// GigaDevice Flash read commands
+#define ROM_FLASH_CMD_RD4B_GD             0x13
+#define ROM_FLASH_CMD_FSTRD4B_GD          0x0C
+#define ROM_FLASH_CMD_FSTRD4B_OOUT_GD     0x7C
+#define ROM_FLASH_CMD_FSTRD4B_OIOSTR_GD   0xCC
+#define ROM_FLASH_CMD_FSTRD4B_OIODTR_GD   0xFD
+
+// GigaDevice Flash page program commands
+#define ROM_FLASH_CMD_PP4B_GD             0x12
+#define ROM_FLASH_CMD_PP4B_OOUT_GD        0x84
+#define ROM_FLASH_CMD_PP4B_OIOSTR_GD      0x8E
+
+#define ESP_ROM_OPIFLASH_SEL_CS0     (BIT(0))
+
+typedef enum {
+    SPI_FLASH_QIO_MODE = 0,
+    SPI_FLASH_QOUT_MODE,
+    SPI_FLASH_DIO_MODE,
+    SPI_FLASH_DOUT_MODE,
+    SPI_FLASH_FASTRD_MODE,
+    SPI_FLASH_SLOWRD_MODE,
+    SPI_FLASH_OPI_STR_MODE,
+    SPI_FLASH_OPI_DTR_MODE,
+    SPI_FLASH_OOUT_MODE,
+    SPI_FLASH_OIO_STR_MODE,
+    SPI_FLASH_OIO_DTR_MODE,
+    SPI_FLASH_QPI_MODE,
+} SpiFlashRdMode;
+
+typedef enum {
+    ESP_ROM_SPIFLASH_RESULT_OK,
+    ESP_ROM_SPIFLASH_RESULT_ERR,
+    ESP_ROM_SPIFLASH_RESULT_TIMEOUT
+} esp_rom_spiflash_result_t;
+
+/* Stub doesn't currently support OPI flash mode, following functions are used for 32-bit addressing only */
+void esp_rom_opiflash_exec_cmd(int spi_num, SpiFlashRdMode mode,
+    uint32_t cmd, int cmd_bit_len,
+    uint32_t addr, int addr_bit_len,
+    int dummy_bits,
+    uint8_t* mosi_data, int mosi_bit_len,
+    uint8_t* miso_data, int miso_bit_len,
+    uint32_t cs_mask,
+    bool is_write_erase_operation);
+
+esp_rom_spiflash_result_t esp_rom_opiflash_wait_idle(int spi_num, SpiFlashRdMode mode);
+
+esp_rom_spiflash_result_t opi_flash_wren(int spi_num, SpiFlashRdMode mode);
+
+esp_rom_spiflash_result_t esp_rom_opiflash_erase_sector(int spi_num, uint32_t sector_num, SpiFlashRdMode mode);
+
+esp_rom_spiflash_result_t esp_rom_opiflash_erase_block_64k(int spi_num, uint32_t block_num, SpiFlashRdMode mode);
+#endif // ESP32S3
