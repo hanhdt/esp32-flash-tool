@@ -25,7 +25,7 @@
     "postinstall": "npm run lint:fix && electron-builder install-app-deps"
   },
   "dependencies": {
-    "bootstrap-vue": "2.0.0-rc.16",
+    "bootstrap-vue": "2.23.1",
     "csv-parser": "^2.3.5",
     "date-fns": "^2.16.1",
     "jquery": "^3.5.1",
