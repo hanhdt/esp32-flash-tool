@@ -10,7 +10,9 @@ Simplify settings, clean UI and focus on mass manufacturing process where develo
 
 ## Dependencies install
 
-ESP32 Flash Tool depends on pySerial version 3.0 or newer for serial communication with the target device. Hence, you should install `Python` before start run the app.
+- Node v14.19.1
+- Python v2.7
+- ESP32 Flash Tool depends on pySerial version 3.0 or newer for serial communication with the target device. Hence, you should install `Python` before start run the app.
 
 To install pySerial manually by running something like:
 
@@ -23,6 +25,32 @@ $apt-get install python-serial
 ```
 
 depending on your platform. (The official pySerial installation instructions are [here](https://pyserial.readthedocs.org/en/latest/pyserial.html#installation)).
+
+## How to build from source?
+
+### Install dependencies
+
+```Shell
+$npm install
+```
+
+### Build app
+
+```Shell
+$npm run build
+```
+
+### Run app locally
+
+```Shell
+$npm run dev
+```
+
+### Package app
+
+```Shell
+$npm run package
+```
 
 ## Firmware manufacturing process
 
