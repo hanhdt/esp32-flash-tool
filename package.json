@@ -26,7 +26,7 @@
   },
   "dependencies": {
     "bootstrap-vue": "2.0.0-rc.16",
-    "csv-parser": "^2.3.5",
+    "csv-parser": "^3.0.0",
     "date-fns": "^2.16.1",
     "jquery": "^3.5.1",
     "json2csv": "^4.5.4",
